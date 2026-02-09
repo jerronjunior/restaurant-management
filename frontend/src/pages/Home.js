@@ -5,171 +5,121 @@ import { useAuth } from '../context/AuthContext';
 const Home = () => {
   const { isAuthenticated } = useAuth();
 
-  const animations = `
-    @keyframes float {
-      0% { transform: translateY(0px); }
-      50% { transform: translateY(-15px); }
-      100% { transform: translateY(0px); }
+  const styles = `
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    @keyframes pan {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+    .action-card {
+      position: relative;
+      height: 400px;
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+      text-decoration: none;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid rgba(255,255,255,0.1);
+      animation: fadeIn 0.8s ease-out forwards;
     }
-    @keyframes slowZoom {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); }
+    .action-card:hover {
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.4);
     }
-    .glass-card {
-      background: rgba(255, 255, 255, 0.7);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      transition: all 0.4s ease;
+    .action-card img {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.7s ease;
+      z-index: 1;
     }
-    .glass-card:hover {
-      transform: translateY(-10px);
-      background: rgba(255, 255, 255, 0.9);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    .action-card:hover img {
+      transform: scale(1.1);
     }
-    .floating-icon {
-      animation: float 4s ease-in-out infinite;
+    .overlay {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      padding: 30px;
+      background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
+      color: white;
+    }
+    .btn-circle {
+      width: 50px;
+      height: 50px;
+      background: #ffc107;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 15px;
+      color: black;
+      font-weight: bold;
+      transition: width 0.3s ease;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .action-card:hover .btn-circle {
+      width: 140px;
+      border-radius: 25px;
     }
   `;
 
   return (
-    <div className="page" style={{ 
-      background: '#f0f2f5', 
-      minHeight: '100vh', 
-      fontFamily: "'Poppins', sans-serif",
-      position: 'relative',
-      overflow: 'hidden' 
-    }}>
-      <style>{animations}</style>
-
-      {/* Decorative Moving Blobs for depth */}
-      <div style={{
-        position: 'absolute',
-        top: '-10%',
-        right: '-5%',
-        width: '400px',
-        height: '400px',
-        background: 'radial-gradient(circle, rgba(255,193,7,0.2) 0%, rgba(255,255,255,0) 70%)',
-        zIndex: 0
-      }}></div>
-
-      <div className="container" style={{ position: 'relative', zIndex: 1, padding: '40px 20px' }}>
-        
-        {/* Hero Section */}
-        <div style={{ 
-          position: 'relative', 
-          borderRadius: '30px', 
-          overflow: 'hidden', 
-          height: '550px', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
-        }}>
-          {/* Animated Background Image */}
-          <div style={{
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            backgroundImage: 'linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.7)), url("https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80")',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            animation: 'slowZoom 15s infinite alternate ease-in-out',
-            zIndex: -1
-          }}></div>
-
-          <div style={{ textAlign: 'center', color: 'white', padding: '0 20px' }}>
-            <span style={{ textTransform: 'uppercase', letterSpacing: '4px', fontSize: '0.9rem', fontWeight: '600', marginBottom: '10px', display: 'block' }}>
-              Premium Dining Experience
-            </span>
-            <h1 style={{ fontSize: '4rem', fontWeight: '900', marginBottom: '20px', lineHeight: '1.1' }}>
-              Taste the <span style={{ color: '#ffc107' }}>Difference</span>
-            </h1>
-            <p style={{ fontSize: '1.2rem', marginBottom: '40px', maxWidth: '600px', margin: '0 auto 40px', opacity: 0.9 }}>
-              From garden to table, we serve only the freshest ingredients prepared by world-class chefs.
-            </p>
-            
-            <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
-              <Link to="/menu" style={mainBtnStyle}>View Menu</Link>
-              <Link to={isAuthenticated ? "/booking" : "/register"} style={outlineBtnStyle}>
-                {isAuthenticated ? "Book Table" : "Join the Club"}
-              </Link>
-            </div>
-          </div>
+    <div style={{ background: '#0a0a0a', minHeight: '100vh', padding: '60px 20px', color: 'white' }}>
+      <style>{styles}</style>
+      
+      <div className="container" style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: '60px' }}>
+          <h2 style={{ fontSize: '3rem', fontWeight: '800', letterSpacing: '-1px' }}>
+            Choose Your <span style={{ color: '#ffc107' }}>Experience</span>
+          </h2>
+          <p style={{ color: '#888', fontSize: '1.1rem' }}>Elevate your dining with our exclusive services</p>
         </div>
 
-        {/* Feature Section */}
         <div style={{ 
           display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
-          gap: '30px', 
-          marginTop: '-60px', // Pulls cards up over the hero image
-          padding: '0 20px'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
+          gap: '30px' 
         }}>
-          <FeatureCard 
-            icon="🍽️" 
-            title="Gourmet Menu" 
-            text="Explore seasonal flavors and signature dishes crafted for food lovers." 
-          />
-          <FeatureCard 
-            icon="🥂" 
-            title="Private Dining" 
-            text="Perfect for intimate gatherings, celebrations, and corporate events." 
-          />
-          <FeatureCard 
-            icon="✨" 
-            title="Fast Reservation" 
-            text="Real-time booking and pre-ordering for a seamless experience." 
-          />
+          
+          {/* Gourmet Menu Card */}
+          <Link to="/menu" className="action-card">
+            <img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=600&q=80" alt="Menu" />
+            <div className="overlay">
+              <span style={{ color: '#ffc107', fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase' }}>Cuisine</span>
+              <h3 style={{ fontSize: '1.8rem', margin: '5px 0' }}>Gourmet Menu</h3>
+              <p style={{ opacity: 0.7, fontSize: '0.9rem' }}>Chef-curated seasonal dishes with rare ingredients.</p>
+              <div className="btn-circle">→ <span style={{ marginLeft: '10px' }}>Explore</span></div>
+            </div>
+          </Link>
+
+          {/* Private Dining Card */}
+          <Link to="/private-dining" className="action-card">
+            <img src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=600&q=80" alt="Private" />
+            <div className="overlay">
+              <span style={{ color: '#ffc107', fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase' }}>Exclusive</span>
+              <h3 style={{ fontSize: '1.8rem', margin: '5px 0' }}>Private Dining</h3>
+              <p style={{ opacity: 0.7, fontSize: '0.9rem' }}>Intimate spaces for your most important celebrations.</p>
+              <div className="btn-circle">→ <span style={{ marginLeft: '10px' }}>Reserve</span></div>
+            </div>
+          </Link>
+
+          {/* Fast Reservation Card */}
+          <Link to={isAuthenticated ? "/booking" : "/register"} className="action-card">
+            <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=600&q=80" alt="Reservation" />
+            <div className="overlay">
+              <span style={{ color: '#ffc107', fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase' }}>Instant</span>
+              <h3 style={{ fontSize: '1.8rem', margin: '5px 0' }}>Fast Reservation</h3>
+              <p style={{ opacity: 0.7, fontSize: '0.9rem' }}>Skip the wait. Secure your favorite table in seconds.</p>
+              <div className="btn-circle">→ <span style={{ marginLeft: '10px' }}>Book Now</span></div>
+            </div>
+          </Link>
+
         </div>
       </div>
     </div>
   );
-};
-
-// Styling for Feature Cards
-const FeatureCard = ({ icon, title, text }) => (
-  <div className="glass-card" style={{
-    padding: '40px 30px',
-    borderRadius: '24px',
-    textAlign: 'center'
-  }}>
-    <div className="floating-icon" style={{ fontSize: '3.5rem', marginBottom: '20px' }}>{icon}</div>
-    <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '15px', color: '#1a1a1a' }}>{title}</h3>
-    <p style={{ color: '#555', lineHeight: '1.7', fontSize: '1rem' }}>{text}</p>
-  </div>
-);
-
-// Button Styles
-const mainBtnStyle = {
-  backgroundColor: '#ffc107',
-  color: '#000',
-  padding: '16px 40px',
-  borderRadius: '12px',
-  fontWeight: '700',
-  textDecoration: 'none',
-  fontSize: '1rem',
-  boxShadow: '0 10px 20px rgba(255, 193, 7, 0.3)',
-  transition: 'all 0.3s'
-};
-
-const outlineBtnStyle = {
-  backgroundColor: 'rgba(255,255,255,0.1)',
-  color: '#fff',
-  padding: '16px 40px',
-  borderRadius: '12px',
-  fontWeight: '700',
-  textDecoration: 'none',
-  fontSize: '1rem',
-  border: '1px solid rgba(255,255,255,0.4)',
-  backdropFilter: 'blur(5px)',
-  transition: 'all 0.3s'
 };
 
 export default Home;
