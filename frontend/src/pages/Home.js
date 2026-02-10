@@ -6,120 +6,159 @@ const Home = () => {
   const { isAuthenticated } = useAuth();
 
   const styles = `
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes floatLight {
+      0% { transform: translate(0, 0); opacity: 0.3; }
+      50% { transform: translate(100px, 50px); opacity: 0.6; }
+      100% { transform: translate(0, 0); opacity: 0.3; }
+    }
+    .animated-bg {
+      background: linear-gradient(-45deg, #0f0f0f, #1a1a1a, #2c1e05, #0a0a0a);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      position: relative;
+      overflow: hidden;
+    }
+    .light-blob {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(255,193,7,0.1) 0%, rgba(0,0,0,0) 70%);
+      border-radius: 50%;
+      filter: blur(80px);
+      animation: floatLight 20s infinite alternate;
+      pointer-events: none;
     }
     .action-card {
       position: relative;
-      height: 400px;
-      border-radius: 20px;
+      height: 450px;
+      border-radius: 24px;
       overflow: hidden;
       display: flex;
       align-items: flex-end;
       text-decoration: none;
-      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
       border: 1px solid rgba(255,255,255,0.1);
-      animation: fadeIn 0.8s ease-out forwards;
+      z-index: 2;
     }
     .action-card:hover {
-      transform: translateY(-10px) scale(1.02);
-      box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+      transform: translateY(-15px);
+      border-color: rgba(255,193,7,0.5);
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6);
     }
     .action-card img {
       position: absolute;
       top: 0; left: 0; width: 100%; height: 100%;
       object-fit: cover;
-      transition: transform 0.7s ease;
+      transition: transform 1.2s ease;
       z-index: 1;
+      filter: grayscale(20%) brightness(80%);
     }
     .action-card:hover img {
       transform: scale(1.1);
+      filter: grayscale(0%) brightness(100%);
     }
-    .overlay {
+    .overlay-content {
       position: relative;
-      z-index: 2;
+      z-index: 3;
+      padding: 40px;
       width: 100%;
-      padding: 30px;
-      background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
-      color: white;
+      background: linear-gradient(to top, rgba(0,0,0,1) 10%, rgba(0,0,0,0) 100%);
+      transition: all 0.4s ease;
     }
-    .btn-circle {
-      width: 50px;
-      height: 50px;
-      background: #ffc107;
-      border-radius: 50%;
-      display: flex;
+    .btn-action {
+      margin-top: 20px;
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
-      margin-top: 15px;
-      color: black;
-      font-weight: bold;
-      transition: width 0.3s ease;
-      overflow: hidden;
-      white-space: nowrap;
+      padding: 12px 24px;
+      background: #ffc107;
+      color: #000;
+      border-radius: 50px;
+      font-weight: 800;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.4s ease;
     }
-    .action-card:hover .btn-circle {
-      width: 140px;
-      border-radius: 25px;
+    .action-card:hover .btn-action {
+      transform: translateY(0);
+      opacity: 1;
     }
   `;
 
   return (
-    <div style={{ background: '#0a0a0a', minHeight: '100vh', padding: '60px 20px', color: 'white' }}>
+    <div className="animated-bg" style={{ minHeight: '100vh', padding: '80px 20px', color: 'white' }}>
       <style>{styles}</style>
       
-      <div className="container" style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <div style={{ textAlign: 'center', marginBottom: '60px' }}>
-          <h2 style={{ fontSize: '3rem', fontWeight: '800', letterSpacing: '-1px' }}>
+      {/* Floating Light Blobs */}
+      <div className="light-blob" style={{ top: '10%', left: '-10%' }}></div>
+      <div className="light-blob" style={{ bottom: '10%', right: '-10%', animationDelay: '-10s' }}></div>
+
+      <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
+        
+        <header style={{ textAlign: 'center', marginBottom: '80px' }}>
+          <span style={{ color: '#ffc107', letterSpacing: '5px', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '0.9rem' }}>
+            The Gold Standard
+          </span>
+          <h2 style={{ fontSize: '3.8rem', fontWeight: '900', margin: '15px 0', letterSpacing: '-2px' }}>
             Choose Your <span style={{ color: '#ffc107' }}>Experience</span>
           </h2>
-          <p style={{ color: '#888', fontSize: '1.1rem' }}>Elevate your dining with our exclusive services</p>
-        </div>
+          <p style={{ color: '#aaa', fontSize: '1.2rem', maxWidth: '600px', margin: '0 auto' }}>
+            Elevate your dining with our exclusive services tailored for the refined palate.
+          </p>
+        </header>
 
         <div style={{ 
           display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
-          gap: '30px' 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', 
+          gap: '40px' 
         }}>
           
-          {/* Gourmet Menu Card */}
-          <Link to="/menu" className="action-card">
-            <img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=600&q=80" alt="Menu" />
-            <div className="overlay">
-              <span style={{ color: '#ffc107', fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase' }}>Cuisine</span>
-              <h3 style={{ fontSize: '1.8rem', margin: '5px 0' }}>Gourmet Menu</h3>
-              <p style={{ opacity: 0.7, fontSize: '0.9rem' }}>Chef-curated seasonal dishes with rare ingredients.</p>
-              <div className="btn-circle">→ <span style={{ marginLeft: '10px' }}>Explore</span></div>
-            </div>
-          </Link>
+          <ExperienceCard 
+            to="/menu"
+            img="https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=800"
+            tag="Cuisine"
+            title="Gourmet Menu"
+            desc="A symphony of seasonal flavors curated by world-class chefs."
+          />
 
-          {/* Private Dining Card */}
-          <Link to="/private-dining" className="action-card">
-            <img src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=600&q=80" alt="Private" />
-            <div className="overlay">
-              <span style={{ color: '#ffc107', fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase' }}>Exclusive</span>
-              <h3 style={{ fontSize: '1.8rem', margin: '5px 0' }}>Private Dining</h3>
-              <p style={{ opacity: 0.7, fontSize: '0.9rem' }}>Intimate spaces for your most important celebrations.</p>
-              <div className="btn-circle">→ <span style={{ marginLeft: '10px' }}>Reserve</span></div>
-            </div>
-          </Link>
+          <ExperienceCard 
+            to="/private-dining"
+            img="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800"
+            tag="Exclusivity"
+            title="Private Dining"
+            desc="Venture into a world of intimacy and bespoke celebrations."
+          />
 
-          {/* Fast Reservation Card */}
-          <Link to={isAuthenticated ? "/booking" : "/register"} className="action-card">
-            <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=600&q=80" alt="Reservation" />
-            <div className="overlay">
-              <span style={{ color: '#ffc107', fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase' }}>Instant</span>
-              <h3 style={{ fontSize: '1.8rem', margin: '5px 0' }}>Fast Reservation</h3>
-              <p style={{ opacity: 0.7, fontSize: '0.9rem' }}>Skip the wait. Secure your favorite table in seconds.</p>
-              <div className="btn-circle">→ <span style={{ marginLeft: '10px' }}>Book Now</span></div>
-            </div>
-          </Link>
+          <ExperienceCard 
+            to={isAuthenticated ? "/booking" : "/register"}
+            img="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=800"
+            tag="Convenience"
+            title="Fast Reservation"
+            desc="Your preferred table is just a few clicks away. Skip the wait."
+          />
 
         </div>
       </div>
     </div>
   );
 };
+
+const ExperienceCard = ({ to, img, tag, title, desc }) => (
+  <Link to={to} className="action-card">
+    <img src={img} alt={title} />
+    <div className="overlay-content">
+      <span style={{ color: '#ffc107', fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '2px' }}>{tag}</span>
+      <h3 style={{ fontSize: '2rem', margin: '10px 0', fontWeight: '800' }}>{title}</h3>
+      <p style={{ opacity: 0.6, fontSize: '0.95rem', lineHeight: '1.5' }}>{desc}</p>
+      <div className="btn-action">
+        Discover More <span style={{ marginLeft: '10px' }}>→</span>
+      </div>
+    </div>
+  </Link>
+);
 
 export default Home;
