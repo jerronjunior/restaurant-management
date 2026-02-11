@@ -48,74 +48,220 @@ const Register = () => {
     setLoading(false);
   };
 
+  const styles = `
+    .auth-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), 
+                  url('https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1200&q=80');
+      background-size: cover;
+      background-position: center;
+      padding: 40px 20px;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 40px;
+      border-radius: 30px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+      animation: slideUp 0.6s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .auth-title {
+      color: #fff;
+      font-size: 2.2rem;
+      font-weight: 900;
+      text-align: center;
+      margin-bottom: 8px;
+      letter-spacing: -1px;
+    }
+
+    .auth-subtitle {
+      color: #888;
+      text-align: center;
+      margin-bottom: 35px;
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .input-group label {
+      display: block;
+      color: #ffc107;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      margin-left: 5px;
+    }
+
+    .premium-input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 14px 18px;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1rem;
+      transition: all 0.3s;
+      outline: none;
+    }
+
+    .premium-input:focus {
+      border-color: #ffc107;
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 20px rgba(255, 193, 7, 0.15);
+    }
+
+    .register-btn {
+      width: 100%;
+      padding: 16px;
+      background: #ffc107;
+      color: #000;
+      border: none;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 15px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .register-btn:hover:not(:disabled) {
+      background: #fff;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .register-btn:disabled {
+      background: #444;
+      color: #777;
+      cursor: not-allowed;
+    }
+
+    .error-box {
+      background: rgba(255, 77, 77, 0.15);
+      color: #ffb3b3;
+      padding: 12px;
+      border-radius: 10px;
+      border-left: 4px solid #ff4d4d;
+      margin-bottom: 25px;
+      font-size: 0.85rem;
+    }
+
+    .footer-text {
+      color: #aaa;
+      text-align: center;
+      margin-top: 25px;
+      font-size: 0.9rem;
+    }
+
+    .footer-text a {
+      color: #ffc107;
+      text-decoration: none;
+      font-weight: 700;
+      margin-left: 5px;
+    }
+
+    .footer-text a:hover {
+      color: #fff;
+    }
+  `;
+
   return (
-    <div className="page">
-      <div className="container">
-        <div style={{ maxWidth: '400px', margin: '0 auto' }}>
-          <h1 className="page-title" style={{ textAlign: 'center' }}>Register</h1>
-          
-          {error && <div className="alert alert-error">{error}</div>}
+    <div className="auth-page">
+      <style>{styles}</style>
+      
+      <div className="glass-card">
+        <h1 className="auth-title">Create <span style={{ color: '#ffc107' }}>Account</span></h1>
+        <p className="auth-subtitle">JOIN OUR EXCLUSIVE DINING CIRCLE</p>
+        
+        {error && <div className="error-box">⚠️ {error}</div>}
 
-          <form onSubmit={handleSubmit} className="card">
-            <div className="form-group">
-              <label>Name</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
-            </div>
+        <form onSubmit={handleSubmit}>
+          <div className="input-group">
+            <label>Full Name</label>
+            <input
+              type="text"
+              name="name"
+              className="premium-input"
+              placeholder="John Doe"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-            <div className="form-group">
-              <label>Email</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-            </div>
+          <div className="input-group">
+            <label>Email Address</label>
+            <input
+              type="email"
+              name="email"
+              className="premium-input"
+              placeholder="john@example.com"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-            <div className="form-group">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+            <div className="input-group">
               <label>Password</label>
               <input
                 type="password"
                 name="password"
+                className="premium-input"
+                placeholder="••••••"
                 value={formData.password}
                 onChange={handleChange}
                 required
-                minLength={6}
               />
             </div>
 
-            <div className="form-group">
-              <label>Confirm Password</label>
+            <div className="input-group">
+              <label>Confirm</label>
               <input
                 type="password"
                 name="confirmPassword"
+                className="premium-input"
+                placeholder="••••••"
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 required
               />
             </div>
+          </div>
 
-            <button
-              type="submit"
-              className="btn btn-primary"
-              style={{ width: '100%' }}
-              disabled={loading}
-            >
-              {loading ? 'Registering...' : 'Register'}
-            </button>
+          <button
+            type="submit"
+            className="register-btn"
+            disabled={loading}
+          >
+            {loading ? 'Processing...' : 'Create Account'}
+          </button>
 
-            <p style={{ marginTop: '20px', textAlign: 'center' }}>
-              Already have an account? <Link to="/login">Login here</Link>
-            </p>
-          </form>
-        </div>
+          <p className="footer-text">
+            Already a member? <Link to="/login">Login here</Link>
+          </p>
+        </form>
       </div>
     </div>
   );
