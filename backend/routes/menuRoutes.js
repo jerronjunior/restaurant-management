@@ -3,6 +3,7 @@ const router = express.Router();
 const { body } = require('express-validator');
 const {
   getMenuItems,
+  getMenuCategories,
   getMenuItem,
   createMenuItem,
   updateMenuItem,
@@ -16,11 +17,21 @@ const menuItemValidation = [
   body('name').trim().notEmpty().withMessage('Name is required'),
   body('description').trim().notEmpty().withMessage('Description is required'),
   body('price').isFloat({ min: 0 }).withMessage('Price must be a positive number'),
-  body('category').optional().isIn(['Appetizer', 'Main Course', 'Dessert', 'Beverage', 'Salad', 'Soup'])
+  body('category').optional().isIn([
+    'Starters',
+    'Main Courses',
+    'Rice & Noodles',
+    'Burgers & Fast Food',
+    'Pizza',
+    'Desserts',
+    'Beverages',
+    "Chef's Specials"
+  ])
     .withMessage('Invalid category')
 ];
 
 // Routes
+router.get('/categories', getMenuCategories);
 router.get('/', getMenuItems);
 router.get('/:id', getMenuItem);
 router.post('/', protect, admin, menuItemValidation, handleValidationErrors, createMenuItem);

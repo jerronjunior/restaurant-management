@@ -7,6 +7,12 @@ export const getMenuItems = async (category = null) => {
   return response.data;
 };
 
+// Get menu categories
+export const getMenuCategories = async () => {
+  const response = await api.get('/menu/categories');
+  return response.data;
+};
+
 // Get single menu item
 export const getMenuItem = async (id) => {
   const response = await api.get(`/menu/${id}`);

@@ -501,6 +501,30 @@ const AdminDashboard = () => {
     setCategories(res.data || []);
   };
 
+  const handleCategoryMove = async (id, direction) => {
+    const ordered = [...categories].sort((a, b) => (a.order || 0) - (b.order || 0));
+    const index = ordered.findIndex((item) => item.id === id);
+    if (index < 0) {
+      return;
+    }
+
+    const swapIndex = direction === 'up' ? index - 1 : index + 1;
+    if (swapIndex < 0 || swapIndex >= ordered.length) {
+      return;
+    }
+
+    const current = ordered[index];
+    const target = ordered[swapIndex];
+
+    await Promise.all([
+      updateCategory(current.id, { order: target.order }),
+      updateCategory(target.id, { order: current.order })
+    ]);
+
+    const res = await getCategories();
+    setCategories(res.data || []);
+  };
+
   const handleOfferSubmit = async (event) => {
     event.preventDefault();
     try {
@@ -813,13 +837,13 @@ const AdminDashboard = () => {
                         <td className="admin-flex">
                           <button
                             className="admin-btn secondary"
-                            onClick={() => handleCategoryUpdate(category.id, { order: category.order - 1 })}
+                            onClick={() => handleCategoryMove(category.id, 'up')}
                           >
                             Move Up
                           </button>
                           <button
                             className="admin-btn secondary"
-                            onClick={() => handleCategoryUpdate(category.id, { order: category.order + 1 })}
+                            onClick={() => handleCategoryMove(category.id, 'down')}
                           >
                             Move Down
                           </button>

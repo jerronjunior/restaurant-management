@@ -11,62 +11,442 @@ try {
 
 // Sample menu items
 const sampleMenuItems = [
+  // Starters / Appetizers
   {
-    name: 'Caesar Salad',
-    description: 'Fresh romaine lettuce with Caesar dressing, croutons, and parmesan cheese',
-    price: 12.99,
-    category: 'Salad',
-    image: 'https://via.placeholder.com/300x200?text=Caesar+Salad'
+    name: 'Vegetable Spring Rolls',
+    description: 'Crispy pastry rolls packed with seasoned vegetables.',
+    price: 650,
+    category: 'Starters',
+    dietType: 'Veg',
+    spicyLevel: 'Mild',
+    tags: ['Veg'],
+    image: 'https://images.unsplash.com/photo-1544333346-646706988bb1?auto=format&fit=crop&w=500'
   },
   {
-    name: 'Grilled Salmon',
-    description: 'Fresh Atlantic salmon grilled to perfection, served with vegetables and rice',
-    price: 24.99,
-    category: 'Main Course',
-    image: 'https://via.placeholder.com/300x200?text=Grilled+Salmon'
+    name: 'Chicken Cutlets (3 pcs)',
+    description: 'Sri Lankan style breaded chicken cutlets with mild spice.',
+    price: 550,
+    category: 'Starters',
+    dietType: 'Non-Veg',
+    spicyLevel: 'Medium',
+    tags: ['Non-Veg'],
+    image: 'https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=500'
   },
   {
-    name: 'Margherita Pizza',
-    description: 'Classic pizza with tomato sauce, mozzarella cheese, and fresh basil',
-    price: 16.99,
-    category: 'Main Course',
-    image: 'https://via.placeholder.com/300x200?text=Margherita+Pizza'
+    name: 'Fish Fingers',
+    description: 'Golden fried fish strips served with creamy dip.',
+    price: 750,
+    category: 'Starters',
+    dietType: 'Non-Veg',
+    spicyLevel: 'Mild',
+    tags: ['Non-Veg'],
+    image: 'https://images.unsplash.com/photo-1576506295286-5cda18df43e7?auto=format&fit=crop&w=500'
   },
   {
-    name: 'Chicken Wings',
-    description: 'Crispy chicken wings with your choice of sauce (Buffalo, BBQ, or Honey Mustard)',
-    price: 14.99,
-    category: 'Appetizer',
-    image: 'https://via.placeholder.com/300x200?text=Chicken+Wings'
+    name: 'Chicken Wings (Spicy / BBQ)',
+    description: 'Juicy wings tossed in spicy or smoky BBQ glaze.',
+    price: 1100,
+    category: 'Starters',
+    dietType: 'Non-Veg',
+    spicyLevel: 'Hot',
+    tags: ['Spicy', 'Best Seller'],
+    image: 'https://images.unsplash.com/photo-1567620832903-9fc6debc209f?auto=format&fit=crop&w=500'
   },
   {
-    name: 'Chocolate Lava Cake',
-    description: 'Warm chocolate cake with a molten center, served with vanilla ice cream',
-    price: 8.99,
-    category: 'Dessert',
-    image: 'https://via.placeholder.com/300x200?text=Chocolate+Lava+Cake'
+    name: 'Garlic Bread',
+    description: 'Toasted baguette slices with garlic herb butter.',
+    price: 600,
+    category: 'Starters',
+    dietType: 'Veg',
+    spicyLevel: 'Mild',
+    tags: ['Veg'],
+    image: 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?auto=format&fit=crop&w=500'
+  },
+
+  // Main Courses
+  {
+    name: 'Chicken Curry',
+    description: 'Comforting chicken curry with aromatic spices.',
+    price: 1250,
+    category: 'Main Courses',
+    dietType: 'Non-Veg',
+    spicyLevel: 'Medium',
+    tags: ['Non-Veg'],
+    image: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=500'
   },
   {
-    name: 'Tomato Soup',
-    description: 'Creamy tomato soup with fresh herbs and a side of bread',
-    price: 7.99,
-    category: 'Soup',
-    image: 'https://via.placeholder.com/300x200?text=Tomato+Soup'
+    name: 'Fish Ambul Thiyal',
+    description: 'Traditional sour fish curry with roasted spices.',
+    price: 1450,
+    category: 'Main Courses',
+    dietType: 'Non-Veg',
+    spicyLevel: 'Medium',
+    tags: ['Best Seller'],
+    image: 'https://images.unsplash.com/photo-1512132411229-c30391241dd8?auto=format&fit=crop&w=500'
   },
   {
-    name: 'Iced Tea',
-    description: 'Refreshing iced tea with lemon',
-    price: 3.99,
-    category: 'Beverage',
-    image: 'https://via.placeholder.com/300x200?text=Iced+Tea'
+    name: 'Vegetable Curry Mix',
+    description: 'A hearty mix of seasonal vegetables in mild curry.',
+    price: 950,
+    category: 'Main Courses',
+    dietType: 'Veg',
+    spicyLevel: 'Mild',
+    tags: ['Veg'],
+    image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=500'
+  },
+  {
+    name: 'Beef Curry',
+    description: 'Slow-cooked beef curry with deep, rich spices.',
+    price: 1650,
+    category: 'Main Courses',
+    dietType: 'Non-Veg',
+    spicyLevel: 'Medium',
+    tags: ['Non-Veg'],
+    image: 'https://images.unsplash.com/photo-1589187151003-0dd30df2ecf1?auto=format&fit=crop&w=500'
+  },
+  {
+    name: 'Grilled Chicken',
+    description: 'Char-grilled chicken with herb butter and sides.',
+    price: 1850,
+    category: 'Main Courses',
+    dietType: 'Non-Veg',
+    spicyLevel: 'Mild',
+    tags: ['Chef Special'],
+    image: 'https://images.unsplash.com/photo-1532550907401-a500c9a57435?auto=format&fit=crop&w=500'
+  },
+
+  // Rice & Noodles
+  {
+    name: 'Chicken Fried Rice',
+    description: 'Wok-tossed rice with chicken, egg, and vegetables.',
+    price: 1250,
+    category: 'Rice & Noodles',
+    dietType: 'Non-Veg',
+    spicyLevel: 'Mild',
+    tags: ['Non-Veg'],
+    image: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=500'
+  },
+  {
+    name: 'Vegetable Fried Rice',
+    description: 'Vegetable fried rice with soy and garlic.',
+    price: 950,
+    category: 'Rice & Noodles',
+    dietType: 'Veg',
+    spicyLevel: 'Mild',
+    tags: ['Veg'],
+    image: 'https://images.unsplash.com/photo-1512058560366-cd2427ff56f3?auto=format&fit=crop&w=500'
+  },
+  {
+    name: 'Seafood Fried Rice',
+    description: 'Seafood fried rice with prawns and fish.',
+    price: 1550,
+    category: 'Rice & Noodles',
+    dietType: 'Non-Veg',
+    spicyLevel: 'Mild',
+    tags: ['Non-Veg'],
+    image: 'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?auto=format&fit=crop&w=500'
+  },
+  {
+    name: 'Chicken Kottu',
+    description: 'Classic chopped roti stir-fry with chicken and spices.',
+    price: 1200,
+    category: 'Rice & Noodles',
+    dietType: 'Non-Veg',
+    spicyLevel: 'Medium',
+    tags: ['Non-Veg'],
+    image: 'https://images.unsplash.com/photo-1630409351241-e90e7f5e434d?auto=format&fit=crop&w=500'
+  },
+  {
+    name: 'Vegetable Noodles',
+    description: 'Stir-fried noodles with fresh vegetables.',
+    price: 1000,
+    category: 'Rice & Noodles',
+    dietType: 'Veg',
+    spicyLevel: 'Mild',
+    tags: ['Veg'],
+    image: 'https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=500'
+  },
+
+  // Burgers & Fast Food
+  {
+    name: 'Classic Chicken Burger',
+    description: 'Crispy chicken burger with lettuce and signature sauce.',
+    price: 1100,
+    category: 'Burgers & Fast Food',
+    dietType: 'Non-Veg',
+    spicyLevel: 'Mild',
+    tags: ['Non-Veg'],
+    image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=500'
   },
   {
     name: 'Beef Burger',
-    description: 'Juicy beef patty with lettuce, tomato, onion, and special sauce',
-    price: 15.99,
-    category: 'Main Course',
-    image: 'https://via.placeholder.com/300x200?text=Beef+Burger'
+    description: 'Juicy beef patty with cheese, pickles, and onions.',
+    price: 1350,
+    category: 'Burgers & Fast Food',
+    dietType: 'Non-Veg',
+    spicyLevel: 'Mild',
+    tags: ['Non-Veg'],
+    image: 'https://images.unsplash.com/photo-1547584385-8cd817456c95?auto=format&fit=crop&w=500'
+  },
+  {
+    name: 'Veggie Burger',
+    description: 'Plant-based burger with fresh greens and sauce.',
+    price: 950,
+    category: 'Burgers & Fast Food',
+    dietType: 'Veg',
+    spicyLevel: 'Mild',
+    tags: ['Veg'],
+    image: 'https://images.unsplash.com/photo-1521305916504-4a1121188589?auto=format&fit=crop&w=500'
+  },
+  {
+    name: 'Chicken Submarine',
+    description: 'Loaded chicken sub with melted cheese and veggies.',
+    price: 1400,
+    category: 'Burgers & Fast Food',
+    dietType: 'Non-Veg',
+    spicyLevel: 'Mild',
+    tags: ['Non-Veg'],
+    image: 'https://images.unsplash.com/photo-1553909489-cd47e090796a?auto=format&fit=crop&w=500'
+  },
+  {
+    name: 'French Fries (Regular)',
+    description: 'Golden fries with a light salt finish.',
+    price: 650,
+    category: 'Burgers & Fast Food',
+    dietType: 'Veg',
+    spicyLevel: 'Mild',
+    tags: ['Veg'],
+    image: 'https://images.unsplash.com/photo-1505253213348-ce0d04b2b0ea?auto=format&fit=crop&w=500'
+  },
+  {
+    name: 'French Fries (Cheese)',
+    description: 'Crispy fries topped with creamy cheese sauce.',
+    price: 850,
+    category: 'Burgers & Fast Food',
+    dietType: 'Veg',
+    spicyLevel: 'Mild',
+    tags: ['Veg'],
+    image: 'https://images.unsplash.com/photo-1516685018646-549d6d8fe348?auto=format&fit=crop&w=500'
+  },
+  {
+    name: 'French Fries (Spicy)',
+    description: 'Spiced fries with chili seasoning.',
+    price: 750,
+    category: 'Burgers & Fast Food',
+    dietType: 'Veg',
+    spicyLevel: 'Hot',
+    tags: ['Spicy', 'Veg'],
+    image: 'https://images.unsplash.com/photo-1639744211487-38fce52a2c2a?auto=format&fit=crop&w=500'
+  },
+
+  // Pizza
+  {
+    name: 'Margherita Pizza',
+    description: 'Classic pizza with tomato, mozzarella, and basil.',
+    price: 1600,
+    category: 'Pizza',
+    dietType: 'Veg',
+    spicyLevel: 'Mild',
+    tags: ['Veg'],
+    image: 'https://images.unsplash.com/photo-1574071318508-1cdbad80ad50?auto=format&fit=crop&w=500'
+  },
+  {
+    name: 'Chicken Pepperoni Pizza',
+    description: 'Spicy chicken pepperoni with melty cheese.',
+    price: 2100,
+    category: 'Pizza',
+    dietType: 'Non-Veg',
+    spicyLevel: 'Medium',
+    tags: ['Best Seller'],
+    image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=500'
+  },
+  {
+    name: 'BBQ Chicken Pizza',
+    description: 'BBQ chicken, onions, and a smoky glaze.',
+    price: 2250,
+    category: 'Pizza',
+    dietType: 'Non-Veg',
+    spicyLevel: 'Mild',
+    tags: ['Non-Veg'],
+    image: 'https://images.unsplash.com/photo-1548365328-8b849e6f7c04?auto=format&fit=crop&w=500'
+  },
+  {
+    name: 'Vegetable Supreme Pizza',
+    description: 'Loaded with peppers, olives, and fresh vegetables.',
+    price: 1850,
+    category: 'Pizza',
+    dietType: 'Veg',
+    spicyLevel: 'Mild',
+    tags: ['Veg'],
+    image: 'https://images.unsplash.com/photo-1541745537411-b8046dc6d66c?auto=format&fit=crop&w=500'
+  },
+  {
+    name: 'Seafood Pizza',
+    description: 'Seafood medley with garlic butter and cheese.',
+    price: 2500,
+    category: 'Pizza',
+    dietType: 'Non-Veg',
+    spicyLevel: 'Mild',
+    tags: ['Non-Veg'],
+    image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=500'
+  },
+
+  // Desserts
+  {
+    name: 'Chocolate Brownie',
+    description: 'Fudgy chocolate brownie with rich cocoa.',
+    price: 750,
+    category: 'Desserts',
+    dietType: 'Veg',
+    spicyLevel: 'Mild',
+    tags: ['Best Seller'],
+    image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=500'
+  },
+  {
+    name: 'Ice Cream (1 scoop)',
+    description: 'One scoop of creamy vanilla ice cream.',
+    price: 450,
+    category: 'Desserts',
+    dietType: 'Veg',
+    spicyLevel: 'Mild',
+    tags: ['Veg'],
+    image: 'https://images.unsplash.com/photo-1497051788611-2c64812349fa?auto=format&fit=crop&w=500'
+  },
+  {
+    name: 'Fruit Salad with Ice Cream',
+    description: 'Seasonal fruits topped with ice cream.',
+    price: 850,
+    category: 'Desserts',
+    dietType: 'Veg',
+    spicyLevel: 'Mild',
+    tags: ['Veg'],
+    image: 'https://images.unsplash.com/photo-1458642849426-cfb724f15ef7?auto=format&fit=crop&w=500'
+  },
+  {
+    name: 'Watalappan',
+    description: 'Classic Sri Lankan coconut custard.',
+    price: 600,
+    category: 'Desserts',
+    dietType: 'Veg',
+    spicyLevel: 'Mild',
+    tags: ['Best Seller'],
+    image: 'https://images.unsplash.com/photo-1589119908995-c6837fa14848?auto=format&fit=crop&w=500'
+  },
+  {
+    name: 'Cheesecake',
+    description: 'Creamy cheesecake with a buttery base.',
+    price: 950,
+    category: 'Desserts',
+    dietType: 'Veg',
+    spicyLevel: 'Mild',
+    tags: ['Veg'],
+    image: 'https://images.unsplash.com/photo-1524351199679-46cddf3027c0?auto=format&fit=crop&w=500'
+  },
+
+  // Beverages
+  {
+    name: 'Fresh Lime Juice',
+    description: 'Refreshing lime juice served chilled.',
+    price: 400,
+    category: 'Beverages',
+    dietType: 'Veg',
+    spicyLevel: 'Mild',
+    tags: ['Veg'],
+    image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=500'
+  },
+  {
+    name: 'Iced Coffee',
+    description: 'Cold brew coffee with a smooth finish.',
+    price: 550,
+    category: 'Beverages',
+    dietType: 'Veg',
+    spicyLevel: 'Mild',
+    tags: ['Veg'],
+    image: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=500'
+  },
+  {
+    name: 'Milkshakes',
+    description: 'Creamy milkshakes in classic flavors.',
+    price: 750,
+    category: 'Beverages',
+    dietType: 'Veg',
+    spicyLevel: 'Mild',
+    tags: ['Veg'],
+    image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=500'
+  },
+  {
+    name: 'Soft Drinks',
+    description: 'Chilled fizzy soft drinks.',
+    price: 350,
+    category: 'Beverages',
+    dietType: 'Veg',
+    spicyLevel: 'Mild',
+    tags: ['Veg'],
+    image: 'https://images.unsplash.com/photo-1510851896000-498520af2236?auto=format&fit=crop&w=500'
+  },
+  {
+    name: 'Mineral Water',
+    description: 'Pure bottled mineral water.',
+    price: 250,
+    category: 'Beverages',
+    dietType: 'Veg',
+    spicyLevel: 'Mild',
+    tags: ['Veg'],
+    image: 'https://images.unsplash.com/photo-1523362628745-0c100150b504?auto=format&fit=crop&w=500'
+  },
+
+  // Chef's Specials
+  {
+    name: 'Signature Chicken Kottu',
+    description: 'Loaded kottu with signature spice blend.',
+    price: 1450,
+    category: "Chef's Specials",
+    dietType: 'Non-Veg',
+    spicyLevel: 'Hot',
+    tags: ['Chef Special'],
+    image: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=500'
+  },
+  {
+    name: 'Seafood Platter',
+    description: 'A premium platter of grilled seafood.',
+    price: 3200,
+    category: "Chef's Specials",
+    dietType: 'Non-Veg',
+    spicyLevel: 'Mild',
+    tags: ['Chef Special'],
+    image: 'https://images.unsplash.com/photo-1551248429-42435c47466f?auto=format&fit=crop&w=500'
+  },
+  {
+    name: 'Mixed Grill',
+    description: 'Assorted grilled meats with sides.',
+    price: 3500,
+    category: "Chef's Specials",
+    dietType: 'Non-Veg',
+    spicyLevel: 'Medium',
+    tags: ['Chef Special'],
+    image: 'https://images.unsplash.com/photo-1544148103-0773bf10d330?auto=format&fit=crop&w=500'
+  },
+  {
+    name: 'Family Rice & Curry Set (4 pax)',
+    description: 'Family feast with rice, curries, and sambol.',
+    price: 4500,
+    category: "Chef's Specials",
+    dietType: 'Non-Veg',
+    spicyLevel: 'Mild',
+    tags: ['Best Seller'],
+    image: 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=500'
   }
+];
+
+const sampleCategories = [
+  { name: 'Starters', order: 1 },
+  { name: 'Main Courses', order: 2 },
+  { name: 'Rice & Noodles', order: 3 },
+  { name: 'Burgers & Fast Food', order: 4 },
+  { name: 'Pizza', order: 5 },
+  { name: 'Desserts', order: 6 },
+  { name: 'Beverages', order: 7 },
+  { name: "Chef's Specials", order: 8 }
 ];
 
 // Seed function
@@ -113,6 +493,24 @@ const seedData = async () => {
       role: 'user',
       createdAt: admin.firestore.FieldValue.serverTimestamp()
     }, { merge: true });
+
+    // Create categories
+    const existingCategories = await db.collection('categories').get();
+    if (existingCategories.empty) {
+      const batch = db.batch();
+      sampleCategories.forEach((category) => {
+        const docRef = db.collection('categories').doc();
+        batch.set(docRef, {
+          ...category,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+      });
+      await batch.commit();
+      console.log(`${sampleCategories.length} categories created`);
+    } else {
+      console.log('Categories already exist');
+    }
 
     // Create menu items
     const existingItems = await db.collection('menuItems').get();

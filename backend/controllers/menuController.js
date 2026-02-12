@@ -14,12 +14,39 @@ exports.getMenuItems = async (req, res) => {
       query = query.where('category', '==', category);
     }
 
-    const snapshot = await query.orderBy('createdAt', 'desc').get();
-    const menuItems = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const snapshot = await query.get();
+    const menuItems = snapshot.docs
+      .map((doc) => ({ id: doc.id, ...doc.data() }))
+      .sort((a, b) => {
+        const aTime = a.createdAt?.seconds ? a.createdAt.seconds : 0;
+        const bTime = b.createdAt?.seconds ? b.createdAt.seconds : 0;
+        return bTime - aTime;
+      });
     res.json({
       success: true,
       count: menuItems.length,
       data: menuItems
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// @route   GET /api/menu/categories
+// @desc    Get all menu categories
+// @access  Public
+exports.getMenuCategories = async (req, res) => {
+  try {
+    const db = getDb();
+    const snapshot = await db.collection('categories')
+      .orderBy('order', 'asc')
+      .get();
+    const categories = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+    res.json({
+      success: true,
+      count: categories.length,
+      data: categories
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
