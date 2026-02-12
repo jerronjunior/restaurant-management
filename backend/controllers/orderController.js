@@ -29,7 +29,8 @@ exports.createOrder = async (req, res) => {
           menuItemId: item.menuItemId,
           name: menuItem.name,
           quantity: item.quantity,
-          price: menuItem.price
+          price: menuItem.price,
+          category: menuItem.category || 'Uncategorized'
         };
       })
     );

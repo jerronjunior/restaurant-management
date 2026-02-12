@@ -49,6 +49,7 @@ exports.register = async (req, res) => {
       name,
       email,
       role: role || 'user',
+      blocked: false,
       createdAt: admin.firestore.FieldValue.serverTimestamp()
     };
 
@@ -105,6 +106,7 @@ exports.login = async (req, res) => {
         name: email.split('@')[0],
         email,
         role: 'user',
+        blocked: false,
         createdAt: admin.firestore.FieldValue.serverTimestamp()
       };
       await db.collection('users').doc(localId).set(userData);

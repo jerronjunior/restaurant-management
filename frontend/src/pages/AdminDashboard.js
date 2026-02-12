@@ -1,114 +1,1117 @@
-import React, { useState, useEffect } from 'react';
-import { useCart } from '../context/CartContext';
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  getAdminStats,
+  getAllOrders,
+  getCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+  getCustomers,
+  updateCustomerBlock,
+  getOffers,
+  createOffer,
+  updateOffer,
+  deleteOffer,
+  getDeliveries,
+  createDelivery,
+  updateDelivery,
+  deleteDelivery,
+  getSettings,
+  updateSettings,
+  getReports
+} from '../services/adminService';
+import { getMenuItems, createMenuItem, updateMenuItem, deleteMenuItem } from '../services/menuService';
+import { updateOrderStatus } from '../services/orderService';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  Tooltip,
+  Legend
+} from 'chart.js';
+import { Bar, Line } from 'react-chartjs-2';
+import './AdminDashboard.css';
 
-const Menu = () => {
-  const { addToCart } = useCart();
-  const [activeCategory, setActiveCategory] = useState('Starters');
+ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Tooltip, Legend);
 
-  // Your full menu data organized by your categories
-  const menuData = {
-    "Starters": [
-      { name: "Vegetable Spring Rolls", price: 650, tag: "🥬 Veg", img: "https://images.unsplash.com/photo-1544333346-646706988bb1?w=400" },
-      { name: "Chicken Cutlets (3 pcs)", price: 550, tag: "🍗 Non-Veg", img: "https://images.unsplash.com/photo-1562967914-608f82629710?w=400" },
-      { name: "Fish Fingers", price: 750, tag: "🐟 Seafood", img: "https://images.unsplash.com/photo-1576506295286-5cda18df43e7?w=400" },
-      { name: "Chicken Wings (Spicy/BBQ)", price: 1100, tag: "🌶️ Spicy", img: "https://images.unsplash.com/photo-1567620832903-9fc6debc209f?w=400" },
-      { name: "Garlic Bread", price: 600, tag: "🥬 Veg", img: "https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=400" },
-    ],
-    "Main Courses": [
-      { name: "Chicken Curry", price: 1250, tag: "🍗 Non-Veg", img: "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=400" },
-      { name: "Fish Ambul Thiyal", price: 1450, tag: "⭐ Best Seller", img: "https://images.unsplash.com/photo-1512132411229-c30391241dd8?w=400" },
-      { name: "Vegetable Curry Mix", price: 950, tag: "🥬 Veg", img: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400" },
-      { name: "Beef Curry", price: 1650, tag: "🥩 Meat", img: "https://images.unsplash.com/photo-1589187151003-0dd30df2ecf1?w=400" },
-      { name: "Grilled Chicken", price: 1850, tag: "👨‍🍳 Chef's Special", img: "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=400" },
-    ],
-    "Rice & Noodles": [
-      { name: "Chicken Fried Rice", price: 1250, tag: "🍗 Non-Veg", img: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=400" },
-      { name: "Vegetable Fried Rice", price: 950, tag: "🥬 Veg", img: "https://images.unsplash.com/photo-1512058560366-cd2427ff56f3?w=400" },
-      { name: "Seafood Fried Rice", price: 1550, tag: "🐟 Seafood", img: "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=400" },
-      { name: "Chicken Kottu", price: 1200, tag: "🔥 Popular", img: "https://images.unsplash.com/photo-1630409351241-e90e7f5e434d?w=400" },
-      { name: "Vegetable Noodles", price: 1000, tag: "🥬 Veg", img: "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=400" },
-    ],
-    "Burgers": [
-      { name: "Classic Chicken Burger", price: 1100, tag: "🍔 Best", img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400" },
-      { name: "Beef Burger", price: 1350, tag: "🥩 Meat", img: "https://images.unsplash.com/photo-1547584385-8cd817456c95?w=400" },
-      { name: "Chicken Submarine", price: 1400, tag: "🥖 Large", img: "https://images.unsplash.com/photo-1553909489-cd47e090796a?w=400" },
-    ],
-    "Pizza": [
-      { name: "Margherita Pizza", price: 1600, tag: "🥬 Veg", img: "https://images.unsplash.com/photo-1574071318508-1cdbad80ad50?w=400" },
-      { name: "Chicken Pepperoni", price: 2100, tag: "🍕 Best", img: "https://images.unsplash.com/photo-1628840042765-356cda07504e?w=400" },
-      { name: "Seafood Pizza", price: 2500, tag: "🐟 Seafood", img: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400" },
-    ],
-    "Desserts": [
-      { name: "Chocolate Brownie", price: 750, tag: "🍫 Sweet", img: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400" },
-      { name: "Watalappan", price: 600, tag: "⭐ Local", img: "https://images.unsplash.com/photo-1589119908995-c6837fa14848?w=400" },
-      { name: "Cheesecake", price: 950, tag: "🍰 Creamy", img: "https://images.unsplash.com/photo-1524351199679-46cddf3027c0?w=400" },
-    ],
-    "Beverages": [
-      { name: "Fresh Lime Juice", price: 400, tag: "🍋 Fresh", img: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=400" },
-      { name: "Iced Coffee", price: 550, tag: "☕ Cold", img: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=400" },
-      { name: "Milkshakes", price: 750, tag: "🥤 Creamy", img: "https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=400" },
-    ],
-    "Chef's Specials": [
-      { name: "Seafood Platter", price: 3200, tag: "👨‍🍳 Premium", img: "https://images.unsplash.com/photo-1551248429-42435c47466f?w=400" },
-      { name: "Mixed Grill", price: 3500, tag: "🥩 Massive", img: "https://images.unsplash.com/photo-1544148103-0773bf10d330?w=400" },
-      { name: "Family Rice & Curry", price: 4500, tag: "👨‍👩‍👧‍👦 4 Pax", img: "https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=400" },
-    ]
+const tabs = [
+  'Overview',
+  'Orders',
+  'Menu',
+  'Categories',
+  'Customers',
+  'Reports',
+  'Offers',
+  'Delivery',
+  'Settings'
+];
+
+const formatCurrency = (value) => {
+  const safe = Number(value || 0);
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'LKR',
+    maximumFractionDigits: 0
+  }).format(safe);
+};
+
+const formatDate = (value) => {
+  if (!value) {
+    return 'N/A';
+  }
+  const date = value.seconds ? new Date(value.seconds * 1000) : new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return 'N/A';
+  }
+  return date.toLocaleString();
+};
+
+const AdminDashboard = () => {
+  const [activeTab, setActiveTab] = useState('Overview');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const [stats, setStats] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const [menuItems, setMenuItems] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [reports, setReports] = useState(null);
+  const [offers, setOffers] = useState([]);
+  const [deliveries, setDeliveries] = useState([]);
+  const [settings, setSettings] = useState({});
+
+  const [orderFilter, setOrderFilter] = useState('All');
+  const [menuForm, setMenuForm] = useState({
+    name: '',
+    price: '',
+    category: '',
+    dietType: 'Veg',
+    spicyLevel: 'Mild',
+    image: '',
+    available: true
+  });
+  const [menuEditingId, setMenuEditingId] = useState(null);
+
+  const [categoryForm, setCategoryForm] = useState({ name: '', order: '' });
+  const [offerForm, setOfferForm] = useState({ code: '', discountPercent: '', expiryDate: '', active: true });
+  const [deliveryForm, setDeliveryForm] = useState({ orderId: '', assignedTo: '', status: 'Pending' });
+  const [settingsForm, setSettingsForm] = useState({
+    restaurantName: '',
+    contactEmail: '',
+    contactPhone: '',
+    openingHours: '',
+    logoUrl: '',
+    paymentNotes: ''
+  });
+  const [realtimeStatus, setRealtimeStatus] = useState('connecting');
+  const [realtimeMenuStatus, setRealtimeMenuStatus] = useState('connecting');
+  const [realtimeDeliveryStatus, setRealtimeDeliveryStatus] = useState('connecting');
+  const [realtimeCategoryStatus, setRealtimeCategoryStatus] = useState('connecting');
+  const [realtimeOfferStatus, setRealtimeOfferStatus] = useState('connecting');
+
+  const loadAll = async () => {
+    try {
+      setLoading(true);
+      setError('');
+
+      const [
+        statsRes,
+        ordersRes,
+        menuRes,
+        categoriesRes,
+        customersRes,
+        reportsRes,
+        offersRes,
+        deliveriesRes,
+        settingsRes
+      ] = await Promise.all([
+        getAdminStats(),
+        getAllOrders(),
+        getMenuItems(),
+        getCategories(),
+        getCustomers(),
+        getReports(),
+        getOffers(),
+        getDeliveries(),
+        getSettings()
+      ]);
+
+      setStats(statsRes.data);
+      setOrders(ordersRes.data || []);
+      setMenuItems(menuRes.data || []);
+      setCategories(categoriesRes.data || []);
+      setCustomers(customersRes.data || []);
+      setReports(reportsRes.data);
+      setOffers(offersRes.data || []);
+      setDeliveries(deliveriesRes.data || []);
+      setSettings(settingsRes.data || {});
+      setSettingsForm((prev) => ({
+        ...prev,
+        ...settingsRes.data
+      }));
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to load admin data.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const categories = Object.keys(menuData);
+  useEffect(() => {
+    loadAll();
+  }, []);
 
-  const styles = `
-    .menu-page { background: #080808; color: white; min-height: 100vh; padding-bottom: 50px; }
-    .hero-mini { background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=1200'); height: 300px; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; margin-bottom: 40px; }
-    .cat-nav { display: flex; gap: 10px; overflow-x: auto; padding: 20px; sticky; top: 0; background: #080808; z-index: 100; justify-content: center; scrollbar-width: none; }
-    .cat-btn { background: #1a1a1a; border: 1px solid #333; color: #888; padding: 10px 20px; border-radius: 50px; cursor: pointer; transition: 0.3s; white-space: nowrap; }
-    .cat-btn.active { background: #ffc107; color: black; font-weight: bold; border-color: #ffc107; box-shadow: 0 0 15px rgba(255,193,7,0.4); }
-    .food-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; padding: 20px; max-width: 1200px; margin: 0 auto; }
-    .food-card { background: #111; border-radius: 15px; overflow: hidden; border: 1px solid #222; position: relative; transition: 0.3s; }
-    .food-card:hover { border-color: #ffc107; transform: translateY(-5px); }
-    .price-tag { position: absolute; top: 10px; right: 10px; background: #ffc107; color: black; padding: 4px 12px; border-radius: 5px; font-weight: 900; z-index: 2; font-size: 0.9rem; }
-  `;
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setRealtimeStatus('disabled');
+      setRealtimeMenuStatus('disabled');
+      setRealtimeDeliveryStatus('disabled');
+      setRealtimeCategoryStatus('disabled');
+      setRealtimeOfferStatus('disabled');
+      return undefined;
+    }
+
+    const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+    const source = new EventSource(`${baseUrl}/admin/orders/stream?token=${token}`);
+    const menuSource = new EventSource(`${baseUrl}/admin/menu/stream?token=${token}`);
+    const deliverySource = new EventSource(`${baseUrl}/admin/deliveries/stream?token=${token}`);
+    const categorySource = new EventSource(`${baseUrl}/admin/categories/stream?token=${token}`);
+    const offerSource = new EventSource(`${baseUrl}/admin/offers/stream?token=${token}`);
+
+    const getOrderTime = (order) => {
+      const createdAt = order?.createdAt;
+      if (!createdAt) {
+        return 0;
+      }
+      if (createdAt.seconds) {
+        return createdAt.seconds * 1000;
+      }
+      return new Date(createdAt).getTime();
+    };
+
+    source.onmessage = (event) => {
+      try {
+        const payload = JSON.parse(event.data);
+        if (payload.type === 'init') {
+          setOrders(payload.orders || []);
+        }
+        if (payload.type === 'changes') {
+          setOrders((prev) => {
+            let next = [...prev];
+            payload.changes.forEach((change) => {
+              if (change.type === 'removed') {
+                next = next.filter((order) => order.id !== change.order.id);
+              } else {
+                const existingIndex = next.findIndex((order) => order.id === change.order.id);
+                if (existingIndex >= 0) {
+                  next[existingIndex] = change.order;
+                } else {
+                  next.unshift(change.order);
+                }
+              }
+            });
+            return next.sort((a, b) => getOrderTime(b) - getOrderTime(a));
+          });
+        }
+        if (payload.type === 'error') {
+          setRealtimeStatus('error');
+        } else {
+          setRealtimeStatus('connected');
+        }
+      } catch (err) {
+        setRealtimeStatus('error');
+      }
+    };
+
+    source.onerror = () => {
+      setRealtimeStatus('error');
+      source.close();
+    };
+
+    menuSource.onmessage = (event) => {
+      try {
+        const payload = JSON.parse(event.data);
+        if (payload.type === 'init') {
+          setMenuItems(payload.menuItems || []);
+        }
+        if (payload.type === 'changes') {
+          setMenuItems((prev) => {
+            let next = [...prev];
+            payload.changes.forEach((change) => {
+              if (change.type === 'removed') {
+                next = next.filter((item) => item.id !== change.item.id);
+              } else {
+                const existingIndex = next.findIndex((item) => item.id === change.item.id);
+                if (existingIndex >= 0) {
+                  next[existingIndex] = change.item;
+                } else {
+                  next.unshift(change.item);
+                }
+              }
+            });
+            return next;
+          });
+        }
+        if (payload.type === 'error') {
+          setRealtimeMenuStatus('error');
+        } else {
+          setRealtimeMenuStatus('connected');
+        }
+      } catch (err) {
+        setRealtimeMenuStatus('error');
+      }
+    };
+
+    menuSource.onerror = () => {
+      setRealtimeMenuStatus('error');
+      menuSource.close();
+    };
+
+    deliverySource.onmessage = (event) => {
+      try {
+        const payload = JSON.parse(event.data);
+        if (payload.type === 'init') {
+          setDeliveries(payload.deliveries || []);
+        }
+        if (payload.type === 'changes') {
+          setDeliveries((prev) => {
+            let next = [...prev];
+            payload.changes.forEach((change) => {
+              if (change.type === 'removed') {
+                next = next.filter((item) => item.id !== change.delivery.id);
+              } else {
+                const existingIndex = next.findIndex((item) => item.id === change.delivery.id);
+                if (existingIndex >= 0) {
+                  next[existingIndex] = change.delivery;
+                } else {
+                  next.unshift(change.delivery);
+                }
+              }
+            });
+            return next;
+          });
+        }
+        if (payload.type === 'error') {
+          setRealtimeDeliveryStatus('error');
+        } else {
+          setRealtimeDeliveryStatus('connected');
+        }
+      } catch (err) {
+        setRealtimeDeliveryStatus('error');
+      }
+    };
+
+    deliverySource.onerror = () => {
+      setRealtimeDeliveryStatus('error');
+      deliverySource.close();
+    };
+
+    categorySource.onmessage = (event) => {
+      try {
+        const payload = JSON.parse(event.data);
+        if (payload.type === 'init') {
+          setCategories(payload.categories || []);
+        }
+        if (payload.type === 'changes') {
+          setCategories((prev) => {
+            let next = [...prev];
+            payload.changes.forEach((change) => {
+              if (change.type === 'removed') {
+                next = next.filter((item) => item.id !== change.category.id);
+              } else {
+                const existingIndex = next.findIndex((item) => item.id === change.category.id);
+                if (existingIndex >= 0) {
+                  next[existingIndex] = change.category;
+                } else {
+                  next.unshift(change.category);
+                }
+              }
+            });
+            return next;
+          });
+        }
+        if (payload.type === 'error') {
+          setRealtimeCategoryStatus('error');
+        } else {
+          setRealtimeCategoryStatus('connected');
+        }
+      } catch (err) {
+        setRealtimeCategoryStatus('error');
+      }
+    };
+
+    categorySource.onerror = () => {
+      setRealtimeCategoryStatus('error');
+      categorySource.close();
+    };
+
+    offerSource.onmessage = (event) => {
+      try {
+        const payload = JSON.parse(event.data);
+        if (payload.type === 'init') {
+          setOffers(payload.offers || []);
+        }
+        if (payload.type === 'changes') {
+          setOffers((prev) => {
+            let next = [...prev];
+            payload.changes.forEach((change) => {
+              if (change.type === 'removed') {
+                next = next.filter((item) => item.id !== change.offer.id);
+              } else {
+                const existingIndex = next.findIndex((item) => item.id === change.offer.id);
+                if (existingIndex >= 0) {
+                  next[existingIndex] = change.offer;
+                } else {
+                  next.unshift(change.offer);
+                }
+              }
+            });
+            return next;
+          });
+        }
+        if (payload.type === 'error') {
+          setRealtimeOfferStatus('error');
+        } else {
+          setRealtimeOfferStatus('connected');
+        }
+      } catch (err) {
+        setRealtimeOfferStatus('error');
+      }
+    };
+
+    offerSource.onerror = () => {
+      setRealtimeOfferStatus('error');
+      offerSource.close();
+    };
+
+    return () => {
+      source.close();
+      menuSource.close();
+      deliverySource.close();
+      categorySource.close();
+      offerSource.close();
+    };
+  }, []);
+
+  const filteredOrders = useMemo(() => {
+    if (orderFilter === 'All') {
+      return orders;
+    }
+    return orders.filter((order) => order.orderStatus === orderFilter);
+  }, [orders, orderFilter]);
+
+  const chartData = useMemo(() => {
+    const dailySales = reports?.dailySales || [];
+    const dailyLabels = dailySales.map((item) => item.date);
+    const dailyTotals = dailySales.map((item) => item.total || 0);
+
+    const weeklyLabels = dailyLabels.slice(-7);
+    const weeklyTotals = dailyTotals.slice(-7);
+
+    return {
+      daily: {
+        labels: dailyLabels,
+        datasets: [
+          {
+            label: 'Daily Sales',
+            data: dailyTotals,
+            backgroundColor: 'rgba(255, 179, 71, 0.6)'
+          }
+        ]
+      },
+      weekly: {
+        labels: weeklyLabels,
+        datasets: [
+          {
+            label: 'Weekly Revenue',
+            data: weeklyTotals,
+            borderColor: 'rgba(245, 109, 91, 0.9)',
+            backgroundColor: 'rgba(245, 109, 91, 0.2)',
+            tension: 0.4
+          }
+        ]
+      }
+    };
+  }, [reports]);
+
+  const handleMenuSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const payload = {
+        ...menuForm,
+        price: Number(menuForm.price),
+        available: !!menuForm.available
+      };
+
+      if (menuEditingId) {
+        await updateMenuItem(menuEditingId, payload);
+      } else {
+        await createMenuItem(payload);
+      }
+
+      setMenuForm({ name: '', price: '', category: '', dietType: 'Veg', spicyLevel: 'Mild', image: '', available: true });
+      setMenuEditingId(null);
+      const menuRes = await getMenuItems();
+      setMenuItems(menuRes.data || []);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to save menu item.');
+    }
+  };
+
+  const handleMenuEdit = (item) => {
+    setMenuEditingId(item.id);
+    setMenuForm({
+      name: item.name || '',
+      price: item.price || '',
+      category: item.category || '',
+      dietType: item.dietType || 'Veg',
+      spicyLevel: item.spicyLevel || 'Mild',
+      image: item.image || '',
+      available: item.available !== false
+    });
+  };
+
+  const handleMenuDelete = async (id) => {
+    await deleteMenuItem(id);
+    setMenuItems((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const handleCategorySubmit = async (event) => {
+    event.preventDefault();
+    try {
+      await createCategory({
+        name: categoryForm.name,
+        order: Number(categoryForm.order || categories.length + 1)
+      });
+      setCategoryForm({ name: '', order: '' });
+      const res = await getCategories();
+      setCategories(res.data || []);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to create category.');
+    }
+  };
+
+  const handleCategoryUpdate = async (id, payload) => {
+    await updateCategory(id, payload);
+    const res = await getCategories();
+    setCategories(res.data || []);
+  };
+
+  const handleOfferSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      await createOffer({
+        ...offerForm,
+        discountPercent: Number(offerForm.discountPercent)
+      });
+      setOfferForm({ code: '', discountPercent: '', expiryDate: '', active: true });
+      const res = await getOffers();
+      setOffers(res.data || []);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to create offer.');
+    }
+  };
+
+  const handleDeliverySubmit = async (event) => {
+    event.preventDefault();
+    try {
+      await createDelivery(deliveryForm);
+      setDeliveryForm({ orderId: '', assignedTo: '', status: 'Pending' });
+      const res = await getDeliveries();
+      setDeliveries(res.data || []);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to create delivery assignment.');
+    }
+  };
+
+  const handleSettingsSave = async (event) => {
+    event.preventDefault();
+    try {
+      const res = await updateSettings(settingsForm);
+      setSettings(res.data || {});
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to update settings.');
+    }
+  };
+
+  const handleOrderStatusUpdate = async (orderId, status) => {
+    await updateOrderStatus(orderId, status);
+    const res = await getAllOrders();
+    setOrders(res.data || []);
+  };
+
+  const handleCustomerBlock = async (customerId, blocked) => {
+    await updateCustomerBlock(customerId, blocked);
+    const res = await getCustomers();
+    setCustomers(res.data || []);
+  };
 
   return (
-    <div className="menu-page">
-      <style>{styles}</style>
-      
-      <div className="hero-mini">
-        <h1 style={{ fontSize: '3.5rem', fontWeight: '900', textShadow: '2px 2px 10px black' }}>OUR MENU</h1>
-      </div>
-
-      <div className="cat-nav">
-        {categories.map(cat => (
-          <button 
-            key={cat} 
-            className={`cat-btn ${activeCategory === cat ? 'active' : ''}`}
-            onClick={() => setActiveCategory(cat)}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
-
-      <div className="food-grid">
-        {menuData[activeCategory].map((item, index) => (
-          <div key={index} className="food-card">
-            <div className="price-tag">LKR {item.price.toLocaleString()}</div>
-            <img src={item.img} alt={item.name} style={{ width: '100%', height: '180px', objectFit: 'cover' }} />
-            <div style={{ padding: '20px' }}>
-              <span style={{ fontSize: '0.7rem', color: '#ffc107', fontWeight: 'bold' }}>{item.tag}</span>
-              <h3 style={{ margin: '5px 0 15px 0', fontSize: '1.2rem' }}>{item.name}</h3>
-              <button 
-                onClick={() => addToCart(item)}
-                style={{ width: '100%', padding: '10px', background: '#ffc107', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}
-              >
-                ADD TO CART
-              </button>
-            </div>
+    <div className="admin-dashboard">
+      <div className="admin-shell">
+        <header className="admin-header">
+          <div>
+            <h1 className="admin-title">Admin Dashboard</h1>
+            <p className="admin-subtitle">Full control of orders, menu, and business insights.</p>
           </div>
-        ))}
+          <button className="admin-btn secondary" onClick={loadAll} disabled={loading}>
+            Refresh Data
+          </button>
+        </header>
+
+        <nav className="admin-tabbar">
+          {tabs.map((tab) => (
+            <button
+              key={tab}
+              className={`admin-tab ${activeTab === tab ? 'active' : ''}`}
+              onClick={() => setActiveTab(tab)}
+            >
+              {tab}
+            </button>
+          ))}
+        </nav>
+
+        {error && <div className="admin-alert">{error}</div>}
+
+        {loading ? (
+          <div className="admin-panel">Loading dashboard data...</div>
+        ) : (
+          <>
+            {activeTab === 'Overview' && (
+              <section>
+                <div className="admin-grid">
+                  <div className="admin-card">
+                    <h3>Total Orders Today</h3>
+                    <div className="admin-metric">{stats?.todayOrders || 0}</div>
+                  </div>
+                  <div className="admin-card">
+                    <h3>Today Revenue</h3>
+                    <div className="admin-metric">{formatCurrency(stats?.dailyRevenue || 0)}</div>
+                  </div>
+                  <div className="admin-card">
+                    <h3>Pending Orders</h3>
+                    <div className="admin-metric">{stats?.pendingOrders || 0}</div>
+                  </div>
+                  <div className="admin-card">
+                    <h3>Total Customers</h3>
+                    <div className="admin-metric">{stats?.totalCustomers || 0}</div>
+                  </div>
+                  <div className="admin-card">
+                    <h3>Best Selling Item</h3>
+                    <div className="admin-metric">
+                      {stats?.bestSellingItem?.name || 'Not enough data'}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="admin-split">
+                  <div className="admin-chart">
+                    <h2>Daily Sales</h2>
+                    <Bar data={chartData.daily} />
+                  </div>
+                  <div className="admin-chart">
+                    <h2>Weekly Revenue</h2>
+                    <Line data={chartData.weekly} />
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {activeTab === 'Orders' && (
+              <section className="admin-panel">
+                <h2>Order Management</h2>
+                <div className="admin-muted" style={{ marginBottom: '12px' }}>
+                  Realtime updates: {realtimeStatus}
+                </div>
+                <div className="admin-row">
+                  <label className="admin-muted">Filter:</label>
+                  <select
+                    className="admin-select"
+                    value={orderFilter}
+                    onChange={(event) => setOrderFilter(event.target.value)}
+                  >
+                    {['All', 'Pending', 'Preparing', 'Completed', 'Cancelled'].map((status) => (
+                      <option key={status} value={status}>
+                        {status}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Customer</th>
+                      <th>Items</th>
+                      <th>Total</th>
+                      <th>Status</th>
+                      <th>Update</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredOrders.map((order) => (
+                      <tr key={order.id}>
+                        <td>
+                          {order.userName}
+                          <div className="admin-muted">{order.userEmail}</div>
+                        </td>
+                        <td>
+                          {(order.items || []).map((item) => item.name).join(', ')}
+                        </td>
+                        <td>{formatCurrency(order.totalPrice)}</td>
+                        <td><span className="admin-tag">{order.orderStatus}</span></td>
+                        <td>
+                          <select
+                            className="admin-select"
+                            defaultValue={order.orderStatus}
+                            onChange={(event) => handleOrderStatusUpdate(order.id, event.target.value)}
+                          >
+                            {['Pending', 'Preparing', 'Ready', 'Completed', 'Cancelled'].map((status) => (
+                              <option key={status} value={status}>{status}</option>
+                            ))}
+                          </select>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </section>
+            )}
+
+            {activeTab === 'Menu' && (
+              <section className="admin-panel">
+                <h2>Menu Management</h2>
+                <div className="admin-muted" style={{ marginBottom: '12px' }}>
+                  Realtime updates: {realtimeMenuStatus}
+                </div>
+                <form className="admin-row" onSubmit={handleMenuSubmit}>
+                  <input
+                    className="admin-input"
+                    placeholder="Item name"
+                    value={menuForm.name}
+                    onChange={(event) => setMenuForm({ ...menuForm, name: event.target.value })}
+                    required
+                  />
+                  <input
+                    className="admin-input"
+                    type="number"
+                    placeholder="Price"
+                    value={menuForm.price}
+                    onChange={(event) => setMenuForm({ ...menuForm, price: event.target.value })}
+                    required
+                  />
+                  <input
+                    className="admin-input"
+                    placeholder="Category"
+                    value={menuForm.category}
+                    onChange={(event) => setMenuForm({ ...menuForm, category: event.target.value })}
+                  />
+                  <select
+                    className="admin-select"
+                    value={menuForm.dietType}
+                    onChange={(event) => setMenuForm({ ...menuForm, dietType: event.target.value })}
+                  >
+                    {['Veg', 'Non-Veg'].map((option) => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </select>
+                  <select
+                    className="admin-select"
+                    value={menuForm.spicyLevel}
+                    onChange={(event) => setMenuForm({ ...menuForm, spicyLevel: event.target.value })}
+                  >
+                    {['Mild', 'Medium', 'Hot'].map((option) => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </select>
+                  <input
+                    className="admin-input"
+                    placeholder="Image URL"
+                    value={menuForm.image}
+                    onChange={(event) => setMenuForm({ ...menuForm, image: event.target.value })}
+                  />
+                  <select
+                    className="admin-select"
+                    value={menuForm.available ? 'Available' : 'Out of Stock'}
+                    onChange={(event) => setMenuForm({ ...menuForm, available: event.target.value === 'Available' })}
+                  >
+                    <option value="Available">Available</option>
+                    <option value="Out of Stock">Out of Stock</option>
+                  </select>
+                  <button className="admin-btn" type="submit">
+                    {menuEditingId ? 'Update Item' : 'Add Item'}
+                  </button>
+                </form>
+
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Item</th>
+                      <th>Category</th>
+                      <th>Price</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {menuItems.map((item) => (
+                      <tr key={item.id}>
+                        <td>{item.name}</td>
+                        <td>{item.category || 'Uncategorized'}</td>
+                        <td>{formatCurrency(item.price)}</td>
+                        <td><span className="admin-tag">{item.available ? 'Available' : 'Out of Stock'}</span></td>
+                        <td className="admin-flex">
+                          <button className="admin-btn secondary" onClick={() => handleMenuEdit(item)}>Edit</button>
+                          <button className="admin-btn secondary" onClick={() => handleMenuDelete(item.id)}>Delete</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </section>
+            )}
+
+            {activeTab === 'Categories' && (
+              <section className="admin-panel">
+                <h2>Category Management</h2>
+                <div className="admin-muted" style={{ marginBottom: '12px' }}>
+                  Realtime updates: {realtimeCategoryStatus}
+                </div>
+                <form className="admin-row" onSubmit={handleCategorySubmit}>
+                  <input
+                    className="admin-input"
+                    placeholder="Category name"
+                    value={categoryForm.name}
+                    onChange={(event) => setCategoryForm({ ...categoryForm, name: event.target.value })}
+                    required
+                  />
+                  <input
+                    className="admin-input"
+                    type="number"
+                    placeholder="Order"
+                    value={categoryForm.order}
+                    onChange={(event) => setCategoryForm({ ...categoryForm, order: event.target.value })}
+                  />
+                  <button className="admin-btn" type="submit">Add Category</button>
+                </form>
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Order</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {categories.map((category) => (
+                      <tr key={category.id}>
+                        <td>{category.name}</td>
+                        <td>{category.order}</td>
+                        <td className="admin-flex">
+                          <button
+                            className="admin-btn secondary"
+                            onClick={() => handleCategoryUpdate(category.id, { order: category.order - 1 })}
+                          >
+                            Move Up
+                          </button>
+                          <button
+                            className="admin-btn secondary"
+                            onClick={() => handleCategoryUpdate(category.id, { order: category.order + 1 })}
+                          >
+                            Move Down
+                          </button>
+                          <button
+                            className="admin-btn secondary"
+                            onClick={() => deleteCategory(category.id).then(() => getCategories().then((res) => setCategories(res.data || [])))}
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </section>
+            )}
+
+            {activeTab === 'Customers' && (
+              <section className="admin-panel">
+                <h2>Customer Management</h2>
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Total Orders</th>
+                      <th>Total Spending</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {customers.map((customer) => (
+                      <tr key={customer.id}>
+                        <td>{customer.name}</td>
+                        <td>{customer.email}</td>
+                        <td>{customer.totalOrders}</td>
+                        <td>{formatCurrency(customer.totalSpending)}</td>
+                        <td>
+                          <button
+                            className="admin-btn secondary"
+                            onClick={() => handleCustomerBlock(customer.id, !customer.blocked)}
+                          >
+                            {customer.blocked ? 'Unblock' : 'Block'}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </section>
+            )}
+
+            {activeTab === 'Reports' && (
+              <section className="admin-panel">
+                <h2>Sales & Reports</h2>
+                <div className="admin-split">
+                  <div className="admin-chart">
+                    <h3>Daily Sales Report</h3>
+                    <Bar data={chartData.daily} />
+                  </div>
+                  <div className="admin-chart">
+                    <h3>Monthly Sales Report</h3>
+                    <Line
+                      data={{
+                        labels: (reports?.monthlySales || []).map((item) => item.month),
+                        datasets: [
+                          {
+                            label: 'Monthly Sales',
+                            data: (reports?.monthlySales || []).map((item) => item.total),
+                            borderColor: 'rgba(255, 179, 71, 0.9)',
+                            backgroundColor: 'rgba(255, 179, 71, 0.2)',
+                            tension: 0.35
+                          }
+                        ]
+                      }}
+                    />
+                  </div>
+                </div>
+                <div className="admin-split" style={{ marginTop: '20px' }}>
+                  <div className="admin-card">
+                    <h3>Most Ordered Items</h3>
+                    <ul>
+                      {(reports?.mostOrderedItems || []).map((item) => (
+                        <li key={item.name}>{item.name} - {item.quantity}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="admin-card">
+                    <h3>Revenue by Category</h3>
+                    <ul>
+                      {(reports?.revenueByCategory || []).map((item) => (
+                        <li key={item.category}>{item.category} - {formatCurrency(item.total)}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {activeTab === 'Offers' && (
+              <section className="admin-panel">
+                <h2>Offers & Discounts</h2>
+                <div className="admin-muted" style={{ marginBottom: '12px' }}>
+                  Realtime updates: {realtimeOfferStatus}
+                </div>
+                <form className="admin-row" onSubmit={handleOfferSubmit}>
+                  <input
+                    className="admin-input"
+                    placeholder="Promo code"
+                    value={offerForm.code}
+                    onChange={(event) => setOfferForm({ ...offerForm, code: event.target.value })}
+                    required
+                  />
+                  <input
+                    className="admin-input"
+                    type="number"
+                    placeholder="Discount %"
+                    value={offerForm.discountPercent}
+                    onChange={(event) => setOfferForm({ ...offerForm, discountPercent: event.target.value })}
+                    required
+                  />
+                  <input
+                    className="admin-input"
+                    type="date"
+                    value={offerForm.expiryDate}
+                    onChange={(event) => setOfferForm({ ...offerForm, expiryDate: event.target.value })}
+                  />
+                  <select
+                    className="admin-select"
+                    value={offerForm.active ? 'Active' : 'Inactive'}
+                    onChange={(event) => setOfferForm({ ...offerForm, active: event.target.value === 'Active' })}
+                  >
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
+                  <button className="admin-btn" type="submit">Create Offer</button>
+                </form>
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Code</th>
+                      <th>Discount</th>
+                      <th>Expiry</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {offers.map((offer) => (
+                      <tr key={offer.id}>
+                        <td>{offer.code}</td>
+                        <td>{offer.discountPercent}%</td>
+                        <td>{formatDate(offer.expiryDate)}</td>
+                        <td><span className="admin-tag">{offer.active ? 'Active' : 'Inactive'}</span></td>
+                        <td className="admin-flex">
+                          <button
+                            className="admin-btn secondary"
+                            onClick={() => updateOffer(offer.id, { active: !offer.active }).then(() => getOffers().then((res) => setOffers(res.data || [])))}
+                          >
+                            Toggle
+                          </button>
+                          <button
+                            className="admin-btn secondary"
+                            onClick={() => deleteOffer(offer.id).then(() => getOffers().then((res) => setOffers(res.data || [])))}
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </section>
+            )}
+
+            {activeTab === 'Delivery' && (
+              <section className="admin-panel">
+                <h2>Delivery Management</h2>
+                <div className="admin-muted" style={{ marginBottom: '12px' }}>
+                  Realtime updates: {realtimeDeliveryStatus}
+                </div>
+                <form className="admin-row" onSubmit={handleDeliverySubmit}>
+                  <input
+                    className="admin-input"
+                    placeholder="Order ID"
+                    value={deliveryForm.orderId}
+                    onChange={(event) => setDeliveryForm({ ...deliveryForm, orderId: event.target.value })}
+                    required
+                  />
+                  <input
+                    className="admin-input"
+                    placeholder="Assigned To"
+                    value={deliveryForm.assignedTo}
+                    onChange={(event) => setDeliveryForm({ ...deliveryForm, assignedTo: event.target.value })}
+                  />
+                  <select
+                    className="admin-select"
+                    value={deliveryForm.status}
+                    onChange={(event) => setDeliveryForm({ ...deliveryForm, status: event.target.value })}
+                  >
+                    {['Pending', 'Picked Up', 'On Route', 'Delivered'].map((status) => (
+                      <option key={status} value={status}>{status}</option>
+                    ))}
+                  </select>
+                  <button className="admin-btn" type="submit">Assign Delivery</button>
+                </form>
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Order</th>
+                      <th>Assigned To</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {deliveries.map((delivery) => (
+                      <tr key={delivery.id}>
+                        <td>{delivery.orderId}</td>
+                        <td>{delivery.assignedTo || 'Unassigned'}</td>
+                        <td><span className="admin-tag">{delivery.status}</span></td>
+                        <td className="admin-flex">
+                          <button
+                            className="admin-btn secondary"
+                            onClick={() => updateDelivery(delivery.id, { status: 'Delivered' }).then(() => getDeliveries().then((res) => setDeliveries(res.data || [])))}
+                          >
+                            Mark Delivered
+                          </button>
+                          <button
+                            className="admin-btn secondary"
+                            onClick={() => deleteDelivery(delivery.id).then(() => getDeliveries().then((res) => setDeliveries(res.data || [])))}
+                          >
+                            Remove
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </section>
+            )}
+
+            {activeTab === 'Settings' && (
+              <section className="admin-panel">
+                <h2>Settings Panel</h2>
+                <form className="admin-row" onSubmit={handleSettingsSave}>
+                  <input
+                    className="admin-input"
+                    placeholder="Restaurant name"
+                    value={settingsForm.restaurantName || ''}
+                    onChange={(event) => setSettingsForm({ ...settingsForm, restaurantName: event.target.value })}
+                  />
+                  <input
+                    className="admin-input"
+                    placeholder="Contact email"
+                    value={settingsForm.contactEmail || ''}
+                    onChange={(event) => setSettingsForm({ ...settingsForm, contactEmail: event.target.value })}
+                  />
+                  <input
+                    className="admin-input"
+                    placeholder="Contact phone"
+                    value={settingsForm.contactPhone || ''}
+                    onChange={(event) => setSettingsForm({ ...settingsForm, contactPhone: event.target.value })}
+                  />
+                  <input
+                    className="admin-input"
+                    placeholder="Opening hours"
+                    value={settingsForm.openingHours || ''}
+                    onChange={(event) => setSettingsForm({ ...settingsForm, openingHours: event.target.value })}
+                  />
+                  <input
+                    className="admin-input"
+                    placeholder="Logo URL"
+                    value={settingsForm.logoUrl || ''}
+                    onChange={(event) => setSettingsForm({ ...settingsForm, logoUrl: event.target.value })}
+                  />
+                  <input
+                    className="admin-input"
+                    placeholder="Payment settings"
+                    value={settingsForm.paymentNotes || ''}
+                    onChange={(event) => setSettingsForm({ ...settingsForm, paymentNotes: event.target.value })}
+                  />
+                  <button className="admin-btn" type="submit">Save Settings</button>
+                </form>
+                <div className="admin-muted">Last updated: {formatDate(settings.updatedAt)}</div>
+              </section>
+            )}
+          </>
+        )}
       </div>
     </div>
   );
 };
 
-export default Menu;
+export default AdminDashboard;

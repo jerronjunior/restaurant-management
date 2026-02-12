@@ -8,6 +8,8 @@ exports.protect = async (req, res, next) => {
     // Check for token in headers
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1];
+    } else if (req.query && req.query.token) {
+      token = req.query.token;
     }
 
     if (!token) {
@@ -24,6 +26,9 @@ exports.protect = async (req, res, next) => {
       }
 
       const user = userDoc.data();
+      if (user.blocked) {
+        return res.status(403).json({ message: 'Account is blocked' });
+      }
       req.user = {
         id: decoded.uid,
         name: user.name,
