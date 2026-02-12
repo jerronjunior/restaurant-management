@@ -13,10 +13,18 @@
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "seed": "cd backend && npm run seed"
   },
-  "keywords": ["restaurant", "management", "reservation"],
+  "keywords": [
+    "restaurant",
+    "management",
+    "reservation"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "concurrently": "^8.2.1"
+  },
+  "dependencies": {
+    "@dataconnect/generated": "file:src/dataconnect-generated",
+    "firebase": "^12.9.0"
   }
 }
