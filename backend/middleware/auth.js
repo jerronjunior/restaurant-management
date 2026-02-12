@@ -1,6 +1,6 @@
-const { admin, getDb } = require('../config/firebaseAdmin');
+const { getDb, admin } = require('../config/firebaseAdmin');
 
-// Middleware to verify JWT token
+// Middleware to verify Firebase ID token
 exports.protect = async (req, res, next) => {
   try {
     let token;
@@ -17,19 +17,18 @@ exports.protect = async (req, res, next) => {
     try {
       const decoded = await admin.auth().verifyIdToken(token);
       const db = getDb();
-      const userDoc = await db.collection('users').doc(decoded.uid).get();
 
+      const userDoc = await db.collection('users').doc(decoded.uid).get();
       if (!userDoc.exists) {
         return res.status(401).json({ message: 'User not found' });
       }
 
-      const userData = userDoc.data();
+      const user = userDoc.data();
       req.user = {
-        id: userDoc.id,
-        uid: userDoc.id,
-        name: userData.name,
-        email: userData.email,
-        role: userData.role
+        id: decoded.uid,
+        name: user.name,
+        email: user.email,
+        role: user.role
       };
 
       next();

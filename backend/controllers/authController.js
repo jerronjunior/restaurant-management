@@ -1,15 +1,23 @@
 const { validationResult } = require('express-validator');
 const axios = require('axios');
-const { admin, getDb } = require('../config/firebaseAdmin');
+const { getDb, admin } = require('../config/firebaseAdmin');
 
-const signUpUrl = (apiKey) => `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${apiKey}`;
-const signInUrl = (apiKey) => `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${apiKey}`;
+const FIREBASE_AUTH_BASE_URL = 'https://identitytoolkit.googleapis.com/v1';
 
 const getApiKey = () => {
-  if (!process.env.FIREBASE_API_KEY) {
+  const apiKey = process.env.FIREBASE_API_KEY;
+  if (!apiKey) {
     throw new Error('FIREBASE_API_KEY is not set');
   }
-  return process.env.FIREBASE_API_KEY;
+  return apiKey;
+};
+
+const getAuthErrorMessage = (error) => {
+  const message = error?.response?.data?.error?.message;
+  if (!message) {
+    return 'Authentication failed';
+  }
+  return message.replace(/_/g, ' ').toLowerCase();
 };
 
 // @route   POST /api/auth/register
@@ -25,35 +33,42 @@ exports.register = async (req, res) => {
     const { name, email, password, role } = req.body;
     const apiKey = getApiKey();
 
-    const response = await axios.post(signUpUrl(apiKey), {
-      email,
-      password,
-      returnSecureToken: true
-    });
+    const signupResponse = await axios.post(
+      `${FIREBASE_AUTH_BASE_URL}/accounts:signUp?key=${apiKey}`,
+      {
+        email,
+        password,
+        returnSecureToken: true
+      }
+    );
 
-    const { localId, idToken } = response.data;
+    const { localId, idToken } = signupResponse.data;
     const db = getDb();
 
-    await db.collection('users').doc(localId).set({
+    const userPayload = {
       name,
       email,
       role: role || 'user',
       createdAt: admin.firestore.FieldValue.serverTimestamp()
-    });
+    };
+
+    await db.collection('users').doc(localId).set(userPayload);
 
     res.status(201).json({
       success: true,
       token: idToken,
       user: {
         id: localId,
-        name,
-        email,
-        role: role || 'user'
+        name: userPayload.name,
+        email: userPayload.email,
+        role: userPayload.role
       }
     });
   } catch (error) {
-    const message = error.response?.data?.error?.message || error.message;
-    res.status(500).json({ message: 'Server error', error: message });
+    res.status(500).json({
+      message: 'Server error',
+      error: getAuthErrorMessage(error)
+    });
   }
 };
 
@@ -68,23 +83,32 @@ exports.login = async (req, res) => {
     }
 
     const { email, password } = req.body;
-
     const apiKey = getApiKey();
-    const response = await axios.post(signInUrl(apiKey), {
-      email,
-      password,
-      returnSecureToken: true
-    });
 
-    const { localId, idToken } = response.data;
+    const loginResponse = await axios.post(
+      `${FIREBASE_AUTH_BASE_URL}/accounts:signInWithPassword?key=${apiKey}`,
+      {
+        email,
+        password,
+        returnSecureToken: true
+      }
+    );
+
+    const { localId, idToken } = loginResponse.data;
     const db = getDb();
+
     const userDoc = await db.collection('users').doc(localId).get();
+    let userData = userDoc.exists ? userDoc.data() : null;
 
-    if (!userDoc.exists) {
-      return res.status(401).json({ message: 'User profile not found' });
+    if (!userData) {
+      userData = {
+        name: email.split('@')[0],
+        email,
+        role: 'user',
+        createdAt: admin.firestore.FieldValue.serverTimestamp()
+      };
+      await db.collection('users').doc(localId).set(userData);
     }
-
-    const userData = userDoc.data();
 
     res.json({
       success: true,
@@ -97,8 +121,10 @@ exports.login = async (req, res) => {
       }
     });
   } catch (error) {
-    const message = error.response?.data?.error?.message || error.message;
-    res.status(500).json({ message: 'Server error', error: message });
+    res.status(500).json({
+      message: 'Server error',
+      error: getAuthErrorMessage(error)
+    });
   }
 };
 
@@ -113,20 +139,23 @@ exports.adminLogin = async (req, res) => {
     }
 
     const { email, password } = req.body;
-
     const apiKey = getApiKey();
-    const response = await axios.post(signInUrl(apiKey), {
-      email,
-      password,
-      returnSecureToken: true
-    });
 
-    const { localId, idToken } = response.data;
+    const loginResponse = await axios.post(
+      `${FIREBASE_AUTH_BASE_URL}/accounts:signInWithPassword?key=${apiKey}`,
+      {
+        email,
+        password,
+        returnSecureToken: true
+      }
+    );
+
+    const { localId, idToken } = loginResponse.data;
     const db = getDb();
-    const userDoc = await db.collection('users').doc(localId).get();
 
+    const userDoc = await db.collection('users').doc(localId).get();
     if (!userDoc.exists) {
-      return res.status(401).json({ message: 'User profile not found' });
+      return res.status(403).json({ message: 'Admin access only' });
     }
 
     const userData = userDoc.data();
@@ -145,8 +174,10 @@ exports.adminLogin = async (req, res) => {
       }
     });
   } catch (error) {
-    const message = error.response?.data?.error?.message || error.message;
-    res.status(500).json({ message: 'Server error', error: message });
+    res.status(500).json({
+      message: 'Server error',
+      error: getAuthErrorMessage(error)
+    });
   }
 };
 
@@ -155,19 +186,13 @@ exports.adminLogin = async (req, res) => {
 // @access  Private
 exports.getMe = async (req, res) => {
   try {
-    const db = getDb();
-    const userDoc = await db.collection('users').doc(req.user.id).get();
-    if (!userDoc.exists) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    const user = userDoc.data();
     res.json({
       success: true,
       user: {
         id: req.user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role
+        name: req.user.name,
+        email: req.user.email,
+        role: req.user.role
       }
     });
   } catch (error) {
