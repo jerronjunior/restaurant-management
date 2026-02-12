@@ -1,6 +1,5 @@
-const Payment = require('../models/Payment');
-const Order = require('../models/Order');
 const { validationResult } = require('express-validator');
+const { getDb, admin } = require('../config/firebaseAdmin');
 
 // @route   POST /api/payments
 // @desc    Create a payment
@@ -13,36 +12,44 @@ exports.createPayment = async (req, res) => {
     }
 
     const { orderId, method } = req.body;
+    const db = getDb();
 
     // Get order details
-    const order = await Order.findById(orderId);
-    if (!order) {
+    const orderDoc = await db.collection('orders').doc(orderId).get();
+    if (!orderDoc.exists) {
       return res.status(404).json({ message: 'Order not found' });
     }
 
+    const order = orderDoc.data();
+
     // Check if user owns the order
-    if (order.userId.toString() !== req.user.id) {
+    if (order.userId !== req.user.id) {
       return res.status(403).json({ message: 'Not authorized to pay for this order' });
     }
 
     // Simulate payment processing
     // In a real application, you would integrate with a payment gateway here
-    const payment = await Payment.create({
+    const payload = {
       orderId,
       userId: req.user.id,
+      userName: req.user.name,
+      userEmail: req.user.email,
       amount: order.totalPrice,
       method: method || 'Online Payment',
-      status: 'Completed', // Simulated - always succeeds
-      transactionId: `TXN${Date.now()}${Math.random().toString(36).substr(2, 9)}`
-    });
+      status: 'Completed',
+      transactionId: `TXN${Date.now()}${Math.random().toString(36).slice(2, 9)}`,
+      createdAt: admin.firestore.FieldValue.serverTimestamp()
+    };
+
+    const paymentRef = await db.collection('payments').add(payload);
 
     // Update order payment status
-    order.paymentStatus = 'Paid';
-    await order.save();
+    await db.collection('orders').doc(orderId).update({
+      paymentStatus: 'Paid',
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    });
 
-    const populatedPayment = await Payment.findById(payment._id)
-      .populate('orderId')
-      .populate('userId', 'name email');
+    const populatedPayment = { id: paymentRef.id, ...payload };
 
     res.status(201).json({
       success: true,
@@ -58,12 +65,15 @@ exports.createPayment = async (req, res) => {
 // @access  Private
 exports.getPayments = async (req, res) => {
   try {
-    const query = req.user.role === 'admin' ? {} : { userId: req.user.id };
-    
-    const payments = await Payment.find(query)
-      .populate('orderId')
-      .populate('userId', 'name email')
-      .sort({ createdAt: -1 });
+    const db = getDb();
+    let query = db.collection('payments');
+
+    if (req.user.role !== 'admin') {
+      query = query.where('userId', '==', req.user.id);
+    }
+
+    const snapshot = await query.orderBy('createdAt', 'desc').get();
+    const payments = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
     res.json({
       success: true,
@@ -80,16 +90,17 @@ exports.getPayments = async (req, res) => {
 // @access  Private
 exports.getPayment = async (req, res) => {
   try {
-    const payment = await Payment.findById(req.params.id)
-      .populate('orderId')
-      .populate('userId', 'name email');
+    const db = getDb();
+    const doc = await db.collection('payments').doc(req.params.id).get();
 
-    if (!payment) {
+    if (!doc.exists) {
       return res.status(404).json({ message: 'Payment not found' });
     }
 
+    const payment = { id: doc.id, ...doc.data() };
+
     // Check if user owns the payment or is admin
-    if (payment.userId._id.toString() !== req.user.id && req.user.role !== 'admin') {
+    if (payment.userId !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Not authorized to access this payment' });
     }
 

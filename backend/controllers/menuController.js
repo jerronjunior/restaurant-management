@@ -1,5 +1,5 @@
-const MenuItem = require('../models/MenuItem');
 const { validationResult } = require('express-validator');
+const { getDb, admin } = require('../config/firebaseAdmin');
 
 // @route   GET /api/menu
 // @desc    Get all menu items
@@ -7,9 +7,15 @@ const { validationResult } = require('express-validator');
 exports.getMenuItems = async (req, res) => {
   try {
     const { category } = req.query;
-    const query = category ? { category, available: true } : { available: true };
-    
-    const menuItems = await MenuItem.find(query).sort({ createdAt: -1 });
+    const db = getDb();
+    let query = db.collection('menuItems').where('available', '==', true);
+
+    if (category) {
+      query = query.where('category', '==', category);
+    }
+
+    const snapshot = await query.orderBy('createdAt', 'desc').get();
+    const menuItems = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     res.json({
       success: true,
       count: menuItems.length,
@@ -25,15 +31,16 @@ exports.getMenuItems = async (req, res) => {
 // @access  Public
 exports.getMenuItem = async (req, res) => {
   try {
-    const menuItem = await MenuItem.findById(req.params.id);
-    
-    if (!menuItem) {
+    const db = getDb();
+    const doc = await db.collection('menuItems').doc(req.params.id).get();
+
+    if (!doc.exists) {
       return res.status(404).json({ message: 'Menu item not found' });
     }
 
     res.json({
       success: true,
-      data: menuItem
+      data: { id: doc.id, ...doc.data() }
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -50,10 +57,17 @@ exports.createMenuItem = async (req, res) => {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const menuItem = await MenuItem.create(req.body);
+    const db = getDb();
+    const payload = {
+      ...req.body,
+      available: req.body.available ?? true,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    };
+    const docRef = await db.collection('menuItems').add(payload);
     res.status(201).json({
       success: true,
-      data: menuItem
+      data: { id: docRef.id, ...payload }
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -70,19 +84,24 @@ exports.updateMenuItem = async (req, res) => {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const menuItem = await MenuItem.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
+    const db = getDb();
+    const docRef = db.collection('menuItems').doc(req.params.id);
+    const doc = await docRef.get();
 
-    if (!menuItem) {
+    if (!doc.exists) {
       return res.status(404).json({ message: 'Menu item not found' });
     }
 
+    const payload = {
+      ...req.body,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    };
+
+    await docRef.update(payload);
+
     res.json({
       success: true,
-      data: menuItem
+      data: { id: doc.id, ...doc.data(), ...payload }
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -94,11 +113,15 @@ exports.updateMenuItem = async (req, res) => {
 // @access  Private/Admin
 exports.deleteMenuItem = async (req, res) => {
   try {
-    const menuItem = await MenuItem.findByIdAndDelete(req.params.id);
+    const db = getDb();
+    const docRef = db.collection('menuItems').doc(req.params.id);
+    const doc = await docRef.get();
 
-    if (!menuItem) {
+    if (!doc.exists) {
       return res.status(404).json({ message: 'Menu item not found' });
     }
+
+    await docRef.delete();
 
     res.json({
       success: true,

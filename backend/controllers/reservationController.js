@@ -1,6 +1,5 @@
-const Reservation = require('../models/Reservation');
-const MenuItem = require('../models/MenuItem');
 const { validationResult } = require('express-validator');
+const { getDb, admin } = require('../config/firebaseAdmin');
 
 // @route   POST /api/reservations
 // @desc    Create a new reservation
@@ -13,37 +12,46 @@ exports.createReservation = async (req, res) => {
     }
 
     const { date, time, tableSize, orderItems } = req.body;
+    const db = getDb();
 
     // Calculate total price from order items
     let totalPrice = 0;
     const populatedOrderItems = await Promise.all(
       orderItems.map(async (item) => {
-        const menuItem = await MenuItem.findById(item.menuItemId);
-        if (!menuItem) {
+        const menuDoc = await db.collection('menuItems').doc(item.menuItemId).get();
+        if (!menuDoc.exists) {
           throw new Error(`Menu item ${item.menuItemId} not found`);
         }
+        const menuItem = menuDoc.data();
         const itemTotal = menuItem.price * item.quantity;
         totalPrice += itemTotal;
         return {
           menuItemId: item.menuItemId,
           quantity: item.quantity,
-          price: menuItem.price
+          price: menuItem.price,
+          name: menuItem.name,
+          description: menuItem.description,
+          image: menuItem.image
         };
       })
     );
 
-    const reservation = await Reservation.create({
+    const payload = {
       userId: req.user.id,
-      date,
+      userName: req.user.name,
+      userEmail: req.user.email,
+      date: admin.firestore.Timestamp.fromDate(new Date(date)),
       time,
       tableSize,
       orderItems: populatedOrderItems,
-      totalPrice
-    });
+      totalPrice,
+      status: 'Pending',
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    };
 
-    const populatedReservation = await Reservation.findById(reservation._id)
-      .populate('orderItems.menuItemId', 'name description image')
-      .populate('userId', 'name email');
+    const docRef = await db.collection('reservations').add(payload);
+    const populatedReservation = { id: docRef.id, ...payload };
 
     res.status(201).json({
       success: true,
@@ -59,12 +67,15 @@ exports.createReservation = async (req, res) => {
 // @access  Private
 exports.getReservations = async (req, res) => {
   try {
-    const query = req.user.role === 'admin' ? {} : { userId: req.user.id };
-    
-    const reservations = await Reservation.find(query)
-      .populate('orderItems.menuItemId', 'name description image price')
-      .populate('userId', 'name email')
-      .sort({ createdAt: -1 });
+    const db = getDb();
+    let query = db.collection('reservations');
+
+    if (req.user.role !== 'admin') {
+      query = query.where('userId', '==', req.user.id);
+    }
+
+    const snapshot = await query.orderBy('createdAt', 'desc').get();
+    const reservations = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
     res.json({
       success: true,
@@ -81,16 +92,17 @@ exports.getReservations = async (req, res) => {
 // @access  Private
 exports.getReservation = async (req, res) => {
   try {
-    const reservation = await Reservation.findById(req.params.id)
-      .populate('orderItems.menuItemId', 'name description image price')
-      .populate('userId', 'name email');
+    const db = getDb();
+    const doc = await db.collection('reservations').doc(req.params.id).get();
 
-    if (!reservation) {
+    if (!doc.exists) {
       return res.status(404).json({ message: 'Reservation not found' });
     }
 
+    const reservation = { id: doc.id, ...doc.data() };
+
     // Check if user owns the reservation or is admin
-    if (reservation.userId._id.toString() !== req.user.id && req.user.role !== 'admin') {
+    if (reservation.userId !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Not authorized to access this reservation' });
     }
 
@@ -108,14 +120,18 @@ exports.getReservation = async (req, res) => {
 // @access  Private
 exports.cancelReservation = async (req, res) => {
   try {
-    const reservation = await Reservation.findById(req.params.id);
+    const db = getDb();
+    const docRef = db.collection('reservations').doc(req.params.id);
+    const doc = await docRef.get();
 
-    if (!reservation) {
+    if (!doc.exists) {
       return res.status(404).json({ message: 'Reservation not found' });
     }
 
+    const reservation = { id: doc.id, ...doc.data() };
+
     // Check if user owns the reservation or is admin
-    if (reservation.userId.toString() !== req.user.id && req.user.role !== 'admin') {
+    if (reservation.userId !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Not authorized to cancel this reservation' });
     }
 
@@ -124,12 +140,14 @@ exports.cancelReservation = async (req, res) => {
       return res.status(400).json({ message: 'Cannot cancel a reservation that is not pending' });
     }
 
-    reservation.status = 'Cancelled';
-    await reservation.save();
+    await docRef.update({
+      status: 'Cancelled',
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    });
 
     res.json({
       success: true,
-      data: reservation
+      data: { ...reservation, status: 'Cancelled' }
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });

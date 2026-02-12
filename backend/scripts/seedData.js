@@ -1,17 +1,13 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 require('dotenv').config();
+const { admin, initFirebase, getDb } = require('../config/firebaseAdmin');
 
-const User = require('../models/User');
-const MenuItem = require('../models/MenuItem');
-
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/restaurant_db', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('MongoDB Connected'))
-.catch((err) => console.error('MongoDB Connection Error:', err));
+try {
+  initFirebase();
+  console.log('Firebase Admin Initialized');
+} catch (error) {
+  console.error('Firebase Admin Initialization Error:', error.message);
+  process.exit(1);
+}
 
 // Sample menu items
 const sampleMenuItems = [
@@ -76,42 +72,62 @@ const sampleMenuItems = [
 // Seed function
 const seedData = async () => {
   try {
-    // Clear existing data (optional - comment out if you want to keep existing data)
-    // await User.deleteMany({});
-    // await MenuItem.deleteMany({});
+    const db = getDb();
 
     // Create admin user
-    const adminExists = await User.findOne({ email: 'admin@restaurant.com' });
-    if (!adminExists) {
-      const admin = await User.create({
-        name: 'Admin User',
+    let adminUser;
+    try {
+      adminUser = await admin.auth().getUserByEmail('admin@restaurant.com');
+    } catch (error) {
+      adminUser = await admin.auth().createUser({
         email: 'admin@restaurant.com',
         password: 'admin123',
-        role: 'admin'
+        displayName: 'Admin User'
       });
-      console.log('Admin user created:', admin.email);
-    } else {
-      console.log('Admin user already exists');
+      console.log('Admin auth user created:', adminUser.email);
     }
+
+    await db.collection('users').doc(adminUser.uid).set({
+      name: 'Admin User',
+      email: 'admin@restaurant.com',
+      role: 'admin',
+      createdAt: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
 
     // Create test user
-    const userExists = await User.findOne({ email: 'user@test.com' });
-    if (!userExists) {
-      const user = await User.create({
-        name: 'Test User',
+    let testUser;
+    try {
+      testUser = await admin.auth().getUserByEmail('user@test.com');
+    } catch (error) {
+      testUser = await admin.auth().createUser({
         email: 'user@test.com',
         password: 'user123',
-        role: 'user'
+        displayName: 'Test User'
       });
-      console.log('Test user created:', user.email);
-    } else {
-      console.log('Test user already exists');
+      console.log('Test auth user created:', testUser.email);
     }
 
+    await db.collection('users').doc(testUser.uid).set({
+      name: 'Test User',
+      email: 'user@test.com',
+      role: 'user',
+      createdAt: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+
     // Create menu items
-    const menuItemsCount = await MenuItem.countDocuments();
-    if (menuItemsCount === 0) {
-      await MenuItem.insertMany(sampleMenuItems);
+    const existingItems = await db.collection('menuItems').get();
+    if (existingItems.empty) {
+      const batch = db.batch();
+      sampleMenuItems.forEach((item) => {
+        const docRef = db.collection('menuItems').doc();
+        batch.set(docRef, {
+          ...item,
+          available: true,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+      });
+      await batch.commit();
       console.log(`${sampleMenuItems.length} menu items created`);
     } else {
       console.log('Menu items already exist');

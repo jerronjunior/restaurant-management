@@ -1,6 +1,4 @@
-const Order = require('../models/Order');
-const Reservation = require('../models/Reservation');
-const Payment = require('../models/Payment');
+const { getDb, admin } = require('../config/firebaseAdmin');
 
 // @route   GET /api/admin/stats
 // @desc    Get admin dashboard statistics
@@ -8,7 +6,11 @@ const Payment = require('../models/Payment');
 exports.getStats = async (req, res) => {
   try {
     // Get total revenue (from completed payments)
-    const payments = await Payment.find({ status: 'Completed' });
+    const db = getDb();
+    const paymentsSnapshot = await db.collection('payments')
+      .where('status', '==', 'Completed')
+      .get();
+    const payments = paymentsSnapshot.docs.map((doc) => doc.data());
     const totalRevenue = payments.reduce((sum, payment) => sum + payment.amount, 0);
 
     // Get daily revenue (today)
@@ -17,17 +19,28 @@ exports.getStats = async (req, res) => {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    const todayPayments = await Payment.find({
-      status: 'Completed',
-      createdAt: { $gte: today, $lt: tomorrow }
-    });
+    const todayPaymentsSnapshot = await db.collection('payments')
+      .where('status', '==', 'Completed')
+      .where('createdAt', '>=', admin.firestore.Timestamp.fromDate(today))
+      .where('createdAt', '<', admin.firestore.Timestamp.fromDate(tomorrow))
+      .get();
+    const todayPayments = todayPaymentsSnapshot.docs.map((doc) => doc.data());
     const dailyRevenue = todayPayments.reduce((sum, payment) => sum + payment.amount, 0);
 
     // Get counts
-    const totalOrders = await Order.countDocuments();
-    const totalReservations = await Reservation.countDocuments();
-    const pendingOrders = await Order.countDocuments({ orderStatus: 'Pending' });
-    const confirmedReservations = await Reservation.countDocuments({ status: 'Confirmed' });
+    const ordersSnapshot = await db.collection('orders').get();
+    const reservationsSnapshot = await db.collection('reservations').get();
+    const pendingOrdersSnapshot = await db.collection('orders')
+      .where('orderStatus', '==', 'Pending')
+      .get();
+    const confirmedReservationsSnapshot = await db.collection('reservations')
+      .where('status', '==', 'Confirmed')
+      .get();
+
+    const totalOrders = ordersSnapshot.size;
+    const totalReservations = reservationsSnapshot.size;
+    const pendingOrders = pendingOrdersSnapshot.size;
+    const confirmedReservations = confirmedReservationsSnapshot.size;
 
     res.json({
       success: true,
@@ -50,10 +63,11 @@ exports.getStats = async (req, res) => {
 // @access  Private/Admin
 exports.getAllReservations = async (req, res) => {
   try {
-    const reservations = await Reservation.find()
-      .populate('orderItems.menuItemId', 'name description image price')
-      .populate('userId', 'name email')
-      .sort({ createdAt: -1 });
+    const db = getDb();
+    const reservationsSnapshot = await db.collection('reservations')
+      .orderBy('createdAt', 'desc')
+      .get();
+    const reservations = reservationsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
     res.json({
       success: true,
@@ -70,10 +84,11 @@ exports.getAllReservations = async (req, res) => {
 // @access  Private/Admin
 exports.getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find()
-      .populate('userId', 'name email')
-      .populate('reservationId')
-      .sort({ createdAt: -1 });
+    const db = getDb();
+    const ordersSnapshot = await db.collection('orders')
+      .orderBy('createdAt', 'desc')
+      .get();
+    const orders = ordersSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
     res.json({
       success: true,

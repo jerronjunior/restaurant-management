@@ -2,6 +2,109 @@
   min-height: 100vh;
 }
 
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Space+Grotesk:wght@400;500;600&display=swap');
+
+.splash-screen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(circle at top, #2c3e50 0%, #101820 45%, #050708 100%);
+  color: #f8f4ef;
+}
+
+.splash-backdrop {
+  position: absolute;
+  inset: -30% 0 0 0;
+  background: radial-gradient(circle at 30% 20%, rgba(255, 193, 7, 0.25), transparent 55%),
+              radial-gradient(circle at 70% 10%, rgba(231, 76, 60, 0.2), transparent 50%);
+  filter: blur(10px);
+  opacity: 0.9;
+  animation: splashGlow 2.5s ease-in-out infinite;
+}
+
+.splash-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 40px 24px;
+  max-width: 720px;
+}
+
+.splash-ornament {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 193, 7, 0.5);
+  background: radial-gradient(circle, rgba(255, 193, 7, 0.35), rgba(255, 193, 7, 0));
+  box-shadow: 0 0 40px rgba(255, 193, 7, 0.25);
+  animation: floatIn 2.6s ease-in-out infinite;
+}
+
+.splash-eyebrow {
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 10px;
+}
+
+.splash-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.6rem, 5vw, 4rem);
+  font-weight: 800;
+  margin-bottom: 12px;
+  text-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.splash-subtitle {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 28px;
+}
+
+.splash-loader {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.splash-loader span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ffc107;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.splash-loader span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.splash-loader span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes splashGlow {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+@keyframes floatIn {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(0.8); opacity: 0.5; }
+  50% { transform: scale(1.2); opacity: 1; }
+}
+
 /* Navigation Styles */
 .navbar {
   background-color: #2c3e50;

@@ -1,12 +1,15 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
 const { validationResult } = require('express-validator');
+const axios = require('axios');
+const { admin, getDb } = require('../config/firebaseAdmin');
 
-// Generate JWT Token
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE || '7d'
-  });
+const signUpUrl = (apiKey) => `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${apiKey}`;
+const signInUrl = (apiKey) => `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${apiKey}`;
+
+const getApiKey = () => {
+  if (!process.env.FIREBASE_API_KEY) {
+    throw new Error('FIREBASE_API_KEY is not set');
+  }
+  return process.env.FIREBASE_API_KEY;
 };
 
 // @route   POST /api/auth/register
@@ -20,36 +23,37 @@ exports.register = async (req, res) => {
     }
 
     const { name, email, password, role } = req.body;
+    const apiKey = getApiKey();
 
-    // Check if user already exists
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ message: 'User already exists with this email' });
-    }
-
-    // Create user
-    const user = await User.create({
-      name,
+    const response = await axios.post(signUpUrl(apiKey), {
       email,
       password,
-      role: role || 'user'
+      returnSecureToken: true
     });
 
-    // Generate token
-    const token = generateToken(user._id);
+    const { localId, idToken } = response.data;
+    const db = getDb();
+
+    await db.collection('users').doc(localId).set({
+      name,
+      email,
+      role: role || 'user',
+      createdAt: admin.firestore.FieldValue.serverTimestamp()
+    });
 
     res.status(201).json({
       success: true,
-      token,
+      token: idToken,
       user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
+        id: localId,
+        name,
+        email,
+        role: role || 'user'
       }
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    const message = error.response?.data?.error?.message || error.message;
+    res.status(500).json({ message: 'Server error', error: message });
   }
 };
 
@@ -65,33 +69,36 @@ exports.login = async (req, res) => {
 
     const { email, password } = req.body;
 
-    // Check if user exists
-    const user = await User.findOne({ email }).select('+password');
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+    const apiKey = getApiKey();
+    const response = await axios.post(signInUrl(apiKey), {
+      email,
+      password,
+      returnSecureToken: true
+    });
+
+    const { localId, idToken } = response.data;
+    const db = getDb();
+    const userDoc = await db.collection('users').doc(localId).get();
+
+    if (!userDoc.exists) {
+      return res.status(401).json({ message: 'User profile not found' });
     }
 
-    // Check password
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
-
-    // Generate token
-    const token = generateToken(user._id);
+    const userData = userDoc.data();
 
     res.json({
       success: true,
-      token,
+      token: idToken,
       user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
+        id: localId,
+        name: userData.name,
+        email: userData.email,
+        role: userData.role
       }
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    const message = error.response?.data?.error?.message || error.message;
+    res.status(500).json({ message: 'Server error', error: message });
   }
 };
 
@@ -107,37 +114,39 @@ exports.adminLogin = async (req, res) => {
 
     const { email, password } = req.body;
 
-    // Check if user exists
-    const user = await User.findOne({ email }).select('+password');
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+    const apiKey = getApiKey();
+    const response = await axios.post(signInUrl(apiKey), {
+      email,
+      password,
+      returnSecureToken: true
+    });
+
+    const { localId, idToken } = response.data;
+    const db = getDb();
+    const userDoc = await db.collection('users').doc(localId).get();
+
+    if (!userDoc.exists) {
+      return res.status(401).json({ message: 'User profile not found' });
     }
 
-    if (user.role !== 'admin') {
+    const userData = userDoc.data();
+    if (userData.role !== 'admin') {
       return res.status(403).json({ message: 'Admin access only' });
     }
 
-    // Check password
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
-
-    // Generate token
-    const token = generateToken(user._id);
-
     res.json({
       success: true,
-      token,
+      token: idToken,
       user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
+        id: localId,
+        name: userData.name,
+        email: userData.email,
+        role: userData.role
       }
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    const message = error.response?.data?.error?.message || error.message;
+    res.status(500).json({ message: 'Server error', error: message });
   }
 };
 
@@ -146,11 +155,16 @@ exports.adminLogin = async (req, res) => {
 // @access  Private
 exports.getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
+    const db = getDb();
+    const userDoc = await db.collection('users').doc(req.user.id).get();
+    if (!userDoc.exists) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    const user = userDoc.data();
     res.json({
       success: true,
       user: {
-        id: user._id,
+        id: req.user.id,
         name: user.name,
         email: user.email,
         role: user.role

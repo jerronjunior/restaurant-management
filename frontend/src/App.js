@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
@@ -17,6 +17,32 @@ import AdminRoute from './components/AdminRoute';
 import './App.css';
 
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSplash(false), 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (showSplash) {
+    return (
+      <div className="splash-screen" aria-live="polite">
+        <div className="splash-backdrop" />
+        <div className="splash-content">
+          <div className="splash-ornament" aria-hidden="true" />
+          <p className="splash-eyebrow">WELCOME TO</p>
+          <h1 className="splash-title">Restaurant Management</h1>
+          <p className="splash-subtitle">Tables. Orders. Experiences.</p>
+          <div className="splash-loader" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <AuthProvider>
       <CartProvider>

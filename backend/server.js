@@ -1,7 +1,7 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
+const { initFirebase } = require('./config/firebaseAdmin');
 
 const app = express();
 
@@ -10,13 +10,14 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Database Connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/restaurant_db', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('MongoDB Connected Successfully'))
-.catch((err) => console.error('MongoDB Connection Error:', err));
+// Firebase Admin Initialization
+try {
+  initFirebase();
+  console.log('Firebase Admin Initialized');
+} catch (error) {
+  console.error('Firebase Admin Initialization Error:', error.message);
+  process.exit(1);
+}
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));

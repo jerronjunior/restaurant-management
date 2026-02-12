@@ -1,5 +1,4 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const { admin, getDb } = require('../config/firebaseAdmin');
 
 // Middleware to verify JWT token
 exports.protect = async (req, res, next) => {
@@ -16,15 +15,22 @@ exports.protect = async (req, res, next) => {
     }
 
     try {
-      // Verify token
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      
-      // Get user from token
-      req.user = await User.findById(decoded.id).select('-password');
-      
-      if (!req.user) {
+      const decoded = await admin.auth().verifyIdToken(token);
+      const db = getDb();
+      const userDoc = await db.collection('users').doc(decoded.uid).get();
+
+      if (!userDoc.exists) {
         return res.status(401).json({ message: 'User not found' });
       }
+
+      const userData = userDoc.data();
+      req.user = {
+        id: userDoc.id,
+        uid: userDoc.id,
+        name: userData.name,
+        email: userData.email,
+        role: userData.role
+      };
 
       next();
     } catch (error) {
