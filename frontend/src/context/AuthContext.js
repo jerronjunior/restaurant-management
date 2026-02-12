@@ -59,6 +59,21 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Admin login function
+  const adminLogin = async (email, password) => {
+    try {
+      const response = await api.post('/auth/admin/login', { email, password });
+      setToken(response.data.token);
+      setUser(response.data.user);
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Admin login failed'
+      };
+    }
+  };
+
   // Register function
   const register = async (name, email, password) => {
     try {
@@ -85,6 +100,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     login,
     register,
+    adminLogin,
     logout,
     isAuthenticated: !!user,
     isAdmin: user?.role === 'admin'
