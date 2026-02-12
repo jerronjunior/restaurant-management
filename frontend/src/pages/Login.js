@@ -4,12 +4,13 @@ import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
   const [formData, setFormData] = useState({
+    role: 'user',
     email: '',
     password: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, adminLogin } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -24,10 +25,12 @@ const Login = () => {
     setError('');
     setLoading(true);
 
-    const result = await login(formData.email, formData.password);
+    const result = formData.role === 'admin'
+      ? await adminLogin(formData.email, formData.password)
+      : await login(formData.email, formData.password);
     
     if (result.success) {
-      navigate('/');
+      navigate(formData.role === 'admin' ? '/admin' : '/');
     } else {
       setError(result.message);
     }
@@ -80,6 +83,31 @@ const Login = () => {
       text-align: center;
       margin-bottom: 40px;
       font-size: 0.95rem;
+    }
+
+    .role-toggle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    .role-button {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 12px;
+      border-radius: 12px;
+      color: #bbb;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .role-button.active {
+      background: #ffc107;
+      color: #000;
+      border-color: #ffc107;
+      box-shadow: 0 10px 20px rgba(255, 193, 7, 0.25);
     }
 
     .custom-input-group {
@@ -180,13 +208,30 @@ const Login = () => {
         {error && <div className="error-msg">{error}</div>}
 
         <form onSubmit={handleSubmit}>
+          <div className="role-toggle">
+            <button
+              type="button"
+              className={`role-button ${formData.role === 'user' ? 'active' : ''}`}
+              onClick={() => setFormData({ ...formData, role: 'user' })}
+            >
+              User Login
+            </button>
+            <button
+              type="button"
+              className={`role-button ${formData.role === 'admin' ? 'active' : ''}`}
+              onClick={() => setFormData({ ...formData, role: 'admin' })}
+            >
+              Admin Login
+            </button>
+          </div>
+
           <div className="custom-input-group">
-            <label>Email Address</label>
+            <label>{formData.role === 'admin' ? 'Admin ID (Email)' : 'Email Address'}</label>
             <input
               type="email"
               name="email"
               className="custom-input"
-              placeholder="name@example.com"
+              placeholder={formData.role === 'admin' ? 'admin@example.com' : 'name@example.com'}
               value={formData.email}
               onChange={handleChange}
               required
@@ -194,7 +239,7 @@ const Login = () => {
           </div>
 
           <div className="custom-input-group">
-            <label>Password</label>
+            <label>{formData.role === 'admin' ? 'Security Key' : 'Password'}</label>
             <input
               type="password"
               name="password"
@@ -211,15 +256,14 @@ const Login = () => {
             className="login-btn"
             disabled={loading}
           >
-            {loading ? 'AUTHENTICATING...' : 'SIGN IN'}
+            {loading ? 'AUTHENTICATING...' : formData.role === 'admin' ? 'ENTER DASHBOARD' : 'SIGN IN'}
           </button>
 
-          <p className="register-link">
-            Don't have an account? <Link to="/register">Create an account</Link>
-          </p>
-          <p className="register-link">
-            Admin access? <Link to="/admin/login">Admin login</Link>
-          </p>
+          {formData.role === 'user' && (
+            <p className="register-link">
+              Don't have an account? <Link to="/register">Create an account</Link>
+            </p>
+          )}
         </form>
       </div>
     </div>
