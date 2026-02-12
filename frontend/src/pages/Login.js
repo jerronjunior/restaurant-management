@@ -217,6 +217,9 @@ const Login = () => {
           <p className="register-link">
             Don't have an account? <Link to="/register">Create an account</Link>
           </p>
+          <p className="register-link">
+            Admin access? <Link to="/admin/login">Admin login</Link>
+          </p>
         </form>
       </div>
     </div>
