@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getOrders } from '../services/orderService';
+import { formatPriceLabel, getNumericPrice } from '../utils/price';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -66,12 +67,12 @@ const Orders = () => {
                   {order.items.map((item, index) => (
                     <div key={index} style={{ display: 'flex', justifyContent: 'space-between', marginTop: '5px' }}>
                       <span>{item.name} x {item.quantity}</span>
-                      <span>${(item.price * item.quantity).toFixed(2)}</span>
+                      <span>{formatPriceLabel(getNumericPrice(item.price) * item.quantity)}</span>
                     </div>
                   ))}
                   <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #eee', fontWeight: 'bold', display: 'flex', justifyContent: 'space-between' }}>
                     <span>Total:</span>
-                    <span>${order.totalPrice.toFixed(2)}</span>
+                    <span>{formatPriceLabel(order.totalPrice)}</span>
                   </div>
                 </div>
               </div>

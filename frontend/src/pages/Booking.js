@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext';
 import { createReservation } from '../services/reservationService';
 import { createOrder } from '../services/orderService';
 import { createPayment } from '../services/paymentService';
+import { formatPriceLabel, getNumericPrice } from '../utils/price';
 
 const Booking = () => {
   const { cart, getTotalPrice, clearCart } = useCart();
@@ -147,12 +148,12 @@ const Booking = () => {
                 {cart.map((item) => (
                   <div key={item._id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                     <span>{item.name} x {item.quantity}</span>
-                    <span>${(item.price * item.quantity).toFixed(2)}</span>
+                    <span>{formatPriceLabel(getNumericPrice(item.price) * item.quantity)}</span>
                   </div>
                 ))}
                 <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '2px solid #eee', fontSize: '1.2rem', fontWeight: 'bold', display: 'flex', justifyContent: 'space-between' }}>
                   <span>Total:</span>
-                  <span>${getTotalPrice().toFixed(2)}</span>
+                  <span>{formatPriceLabel(getTotalPrice())}</span>
                 </div>
               </>
             )}

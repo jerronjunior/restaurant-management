@@ -1,4 +1,5 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 const { admin, initFirebase, getDb } = require('../config/firebaseAdmin');
 
 try {
@@ -15,7 +16,7 @@ const sampleMenuItems = [
   {
     name: 'Vegetable Spring Rolls',
     description: 'Crispy pastry rolls packed with seasoned vegetables.',
-    price: 650,
+    price: 'LKR 650',
     category: 'Starters',
     dietType: 'Veg',
     spicyLevel: 'Mild',
@@ -25,7 +26,7 @@ const sampleMenuItems = [
   {
     name: 'Chicken Cutlets (3 pcs)',
     description: 'Sri Lankan style breaded chicken cutlets with mild spice.',
-    price: 550,
+    price: 'LKR 550',
     category: 'Starters',
     dietType: 'Non-Veg',
     spicyLevel: 'Medium',
@@ -35,7 +36,7 @@ const sampleMenuItems = [
   {
     name: 'Fish Fingers',
     description: 'Golden fried fish strips served with creamy dip.',
-    price: 750,
+    price: 'LKR 750',
     category: 'Starters',
     dietType: 'Non-Veg',
     spicyLevel: 'Mild',
@@ -45,17 +46,17 @@ const sampleMenuItems = [
   {
     name: 'Chicken Wings (Spicy / BBQ)',
     description: 'Juicy wings tossed in spicy or smoky BBQ glaze.',
-    price: 1100,
+    price: 'LKR 1,100',
     category: 'Starters',
     dietType: 'Non-Veg',
     spicyLevel: 'Hot',
-    tags: ['Spicy', 'Best Seller'],
+    tags: ['Non-Veg', 'Spicy', 'Best Seller'],
     image: 'https://images.unsplash.com/photo-1567620832903-9fc6debc209f?auto=format&fit=crop&w=500'
   },
   {
     name: 'Garlic Bread',
     description: 'Toasted baguette slices with garlic herb butter.',
-    price: 600,
+    price: 'LKR 600',
     category: 'Starters',
     dietType: 'Veg',
     spicyLevel: 'Mild',
@@ -67,7 +68,7 @@ const sampleMenuItems = [
   {
     name: 'Chicken Curry',
     description: 'Comforting chicken curry with aromatic spices.',
-    price: 1250,
+    price: 'LKR 1,250',
     category: 'Main Courses',
     dietType: 'Non-Veg',
     spicyLevel: 'Medium',
@@ -77,17 +78,17 @@ const sampleMenuItems = [
   {
     name: 'Fish Ambul Thiyal',
     description: 'Traditional sour fish curry with roasted spices.',
-    price: 1450,
+    price: 'LKR 1,450',
     category: 'Main Courses',
     dietType: 'Non-Veg',
     spicyLevel: 'Medium',
-    tags: ['Best Seller'],
+    tags: ['Non-Veg', 'Best Seller'],
     image: 'https://images.unsplash.com/photo-1512132411229-c30391241dd8?auto=format&fit=crop&w=500'
   },
   {
     name: 'Vegetable Curry Mix',
     description: 'A hearty mix of seasonal vegetables in mild curry.',
-    price: 950,
+    price: 'LKR 950',
     category: 'Main Courses',
     dietType: 'Veg',
     spicyLevel: 'Mild',
@@ -97,7 +98,7 @@ const sampleMenuItems = [
   {
     name: 'Beef Curry',
     description: 'Slow-cooked beef curry with deep, rich spices.',
-    price: 1650,
+    price: 'LKR 1,650',
     category: 'Main Courses',
     dietType: 'Non-Veg',
     spicyLevel: 'Medium',
@@ -107,11 +108,11 @@ const sampleMenuItems = [
   {
     name: 'Grilled Chicken',
     description: 'Char-grilled chicken with herb butter and sides.',
-    price: 1850,
+    price: 'LKR 1,850',
     category: 'Main Courses',
     dietType: 'Non-Veg',
     spicyLevel: 'Mild',
-    tags: ['Chef Special'],
+    tags: ['Non-Veg'],
     image: 'https://images.unsplash.com/photo-1532550907401-a500c9a57435?auto=format&fit=crop&w=500'
   },
 
@@ -119,7 +120,7 @@ const sampleMenuItems = [
   {
     name: 'Chicken Fried Rice',
     description: 'Wok-tossed rice with chicken, egg, and vegetables.',
-    price: 1250,
+    price: 'LKR 1,250',
     category: 'Rice & Noodles',
     dietType: 'Non-Veg',
     spicyLevel: 'Mild',
@@ -129,7 +130,7 @@ const sampleMenuItems = [
   {
     name: 'Vegetable Fried Rice',
     description: 'Vegetable fried rice with soy and garlic.',
-    price: 950,
+    price: 'LKR 950',
     category: 'Rice & Noodles',
     dietType: 'Veg',
     spicyLevel: 'Mild',
@@ -139,7 +140,7 @@ const sampleMenuItems = [
   {
     name: 'Seafood Fried Rice',
     description: 'Seafood fried rice with prawns and fish.',
-    price: 1550,
+    price: 'LKR 1,550',
     category: 'Rice & Noodles',
     dietType: 'Non-Veg',
     spicyLevel: 'Mild',
@@ -149,7 +150,7 @@ const sampleMenuItems = [
   {
     name: 'Chicken Kottu',
     description: 'Classic chopped roti stir-fry with chicken and spices.',
-    price: 1200,
+    price: 'LKR 1,200',
     category: 'Rice & Noodles',
     dietType: 'Non-Veg',
     spicyLevel: 'Medium',
@@ -159,7 +160,7 @@ const sampleMenuItems = [
   {
     name: 'Vegetable Noodles',
     description: 'Stir-fried noodles with fresh vegetables.',
-    price: 1000,
+    price: 'LKR 1,000',
     category: 'Rice & Noodles',
     dietType: 'Veg',
     spicyLevel: 'Mild',
@@ -171,7 +172,7 @@ const sampleMenuItems = [
   {
     name: 'Classic Chicken Burger',
     description: 'Crispy chicken burger with lettuce and signature sauce.',
-    price: 1100,
+    price: 'LKR 1,100',
     category: 'Burgers & Fast Food',
     dietType: 'Non-Veg',
     spicyLevel: 'Mild',
@@ -181,7 +182,7 @@ const sampleMenuItems = [
   {
     name: 'Beef Burger',
     description: 'Juicy beef patty with cheese, pickles, and onions.',
-    price: 1350,
+    price: 'LKR 1,350',
     category: 'Burgers & Fast Food',
     dietType: 'Non-Veg',
     spicyLevel: 'Mild',
@@ -191,7 +192,7 @@ const sampleMenuItems = [
   {
     name: 'Veggie Burger',
     description: 'Plant-based burger with fresh greens and sauce.',
-    price: 950,
+    price: 'LKR 950',
     category: 'Burgers & Fast Food',
     dietType: 'Veg',
     spicyLevel: 'Mild',
@@ -201,7 +202,7 @@ const sampleMenuItems = [
   {
     name: 'Chicken Submarine',
     description: 'Loaded chicken sub with melted cheese and veggies.',
-    price: 1400,
+    price: 'LKR 1,400',
     category: 'Burgers & Fast Food',
     dietType: 'Non-Veg',
     spicyLevel: 'Mild',
@@ -211,7 +212,7 @@ const sampleMenuItems = [
   {
     name: 'French Fries (Regular)',
     description: 'Golden fries with a light salt finish.',
-    price: 650,
+    price: 'LKR 650',
     category: 'Burgers & Fast Food',
     dietType: 'Veg',
     spicyLevel: 'Mild',
@@ -221,7 +222,7 @@ const sampleMenuItems = [
   {
     name: 'French Fries (Cheese)',
     description: 'Crispy fries topped with creamy cheese sauce.',
-    price: 850,
+    price: 'LKR 850',
     category: 'Burgers & Fast Food',
     dietType: 'Veg',
     spicyLevel: 'Mild',
@@ -231,11 +232,11 @@ const sampleMenuItems = [
   {
     name: 'French Fries (Spicy)',
     description: 'Spiced fries with chili seasoning.',
-    price: 750,
+    price: 'LKR 750',
     category: 'Burgers & Fast Food',
     dietType: 'Veg',
     spicyLevel: 'Hot',
-    tags: ['Spicy', 'Veg'],
+    tags: ['Veg', 'Spicy'],
     image: 'https://images.unsplash.com/photo-1639744211487-38fce52a2c2a?auto=format&fit=crop&w=500'
   },
 
@@ -243,7 +244,7 @@ const sampleMenuItems = [
   {
     name: 'Margherita Pizza',
     description: 'Classic pizza with tomato, mozzarella, and basil.',
-    price: 1600,
+    price: 'LKR 1,600',
     category: 'Pizza',
     dietType: 'Veg',
     spicyLevel: 'Mild',
@@ -253,17 +254,17 @@ const sampleMenuItems = [
   {
     name: 'Chicken Pepperoni Pizza',
     description: 'Spicy chicken pepperoni with melty cheese.',
-    price: 2100,
+    price: 'LKR 2,100',
     category: 'Pizza',
     dietType: 'Non-Veg',
     spicyLevel: 'Medium',
-    tags: ['Best Seller'],
+    tags: ['Non-Veg', 'Best Seller'],
     image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=500'
   },
   {
     name: 'BBQ Chicken Pizza',
     description: 'BBQ chicken, onions, and a smoky glaze.',
-    price: 2250,
+    price: 'LKR 2,250',
     category: 'Pizza',
     dietType: 'Non-Veg',
     spicyLevel: 'Mild',
@@ -273,7 +274,7 @@ const sampleMenuItems = [
   {
     name: 'Vegetable Supreme Pizza',
     description: 'Loaded with peppers, olives, and fresh vegetables.',
-    price: 1850,
+    price: 'LKR 1,850',
     category: 'Pizza',
     dietType: 'Veg',
     spicyLevel: 'Mild',
@@ -283,7 +284,7 @@ const sampleMenuItems = [
   {
     name: 'Seafood Pizza',
     description: 'Seafood medley with garlic butter and cheese.',
-    price: 2500,
+    price: 'LKR 2,500',
     category: 'Pizza',
     dietType: 'Non-Veg',
     spicyLevel: 'Mild',
@@ -295,17 +296,17 @@ const sampleMenuItems = [
   {
     name: 'Chocolate Brownie',
     description: 'Fudgy chocolate brownie with rich cocoa.',
-    price: 750,
+    price: 'LKR 750',
     category: 'Desserts',
     dietType: 'Veg',
     spicyLevel: 'Mild',
-    tags: ['Best Seller'],
+    tags: ['Veg', 'Best Seller'],
     image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=500'
   },
   {
     name: 'Ice Cream (1 scoop)',
     description: 'One scoop of creamy vanilla ice cream.',
-    price: 450,
+    price: 'LKR 450',
     category: 'Desserts',
     dietType: 'Veg',
     spicyLevel: 'Mild',
@@ -315,7 +316,7 @@ const sampleMenuItems = [
   {
     name: 'Fruit Salad with Ice Cream',
     description: 'Seasonal fruits topped with ice cream.',
-    price: 850,
+    price: 'LKR 850',
     category: 'Desserts',
     dietType: 'Veg',
     spicyLevel: 'Mild',
@@ -325,17 +326,17 @@ const sampleMenuItems = [
   {
     name: 'Watalappan',
     description: 'Classic Sri Lankan coconut custard.',
-    price: 600,
+    price: 'LKR 600',
     category: 'Desserts',
     dietType: 'Veg',
     spicyLevel: 'Mild',
-    tags: ['Best Seller'],
+    tags: ['Veg', 'Best Seller'],
     image: 'https://images.unsplash.com/photo-1589119908995-c6837fa14848?auto=format&fit=crop&w=500'
   },
   {
     name: 'Cheesecake',
     description: 'Creamy cheesecake with a buttery base.',
-    price: 950,
+    price: 'LKR 950',
     category: 'Desserts',
     dietType: 'Veg',
     spicyLevel: 'Mild',
@@ -347,7 +348,7 @@ const sampleMenuItems = [
   {
     name: 'Fresh Lime Juice',
     description: 'Refreshing lime juice served chilled.',
-    price: 400,
+    price: 'LKR 400',
     category: 'Beverages',
     dietType: 'Veg',
     spicyLevel: 'Mild',
@@ -357,7 +358,7 @@ const sampleMenuItems = [
   {
     name: 'Iced Coffee',
     description: 'Cold brew coffee with a smooth finish.',
-    price: 550,
+    price: 'LKR 550',
     category: 'Beverages',
     dietType: 'Veg',
     spicyLevel: 'Mild',
@@ -367,7 +368,7 @@ const sampleMenuItems = [
   {
     name: 'Milkshakes',
     description: 'Creamy milkshakes in classic flavors.',
-    price: 750,
+    price: 'LKR 750',
     category: 'Beverages',
     dietType: 'Veg',
     spicyLevel: 'Mild',
@@ -377,7 +378,7 @@ const sampleMenuItems = [
   {
     name: 'Soft Drinks',
     description: 'Chilled fizzy soft drinks.',
-    price: 350,
+    price: 'LKR 350',
     category: 'Beverages',
     dietType: 'Veg',
     spicyLevel: 'Mild',
@@ -387,7 +388,7 @@ const sampleMenuItems = [
   {
     name: 'Mineral Water',
     description: 'Pure bottled mineral water.',
-    price: 250,
+    price: 'LKR 250',
     category: 'Beverages',
     dietType: 'Veg',
     spicyLevel: 'Mild',
@@ -399,41 +400,41 @@ const sampleMenuItems = [
   {
     name: 'Signature Chicken Kottu',
     description: 'Loaded kottu with signature spice blend.',
-    price: 1450,
+    price: 'LKR 1,450',
     category: "Chef's Specials",
     dietType: 'Non-Veg',
     spicyLevel: 'Hot',
-    tags: ['Chef Special'],
+    tags: ['Chef Special', 'Non-Veg', 'Spicy'],
     image: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=500'
   },
   {
     name: 'Seafood Platter',
     description: 'A premium platter of grilled seafood.',
-    price: 3200,
+    price: 'LKR 3,200',
     category: "Chef's Specials",
     dietType: 'Non-Veg',
     spicyLevel: 'Mild',
-    tags: ['Chef Special'],
+    tags: ['Chef Special', 'Non-Veg'],
     image: 'https://images.unsplash.com/photo-1551248429-42435c47466f?auto=format&fit=crop&w=500'
   },
   {
     name: 'Mixed Grill',
     description: 'Assorted grilled meats with sides.',
-    price: 3500,
+    price: 'LKR 3,500',
     category: "Chef's Specials",
     dietType: 'Non-Veg',
     spicyLevel: 'Medium',
-    tags: ['Chef Special'],
+    tags: ['Chef Special', 'Non-Veg'],
     image: 'https://images.unsplash.com/photo-1544148103-0773bf10d330?auto=format&fit=crop&w=500'
   },
   {
     name: 'Family Rice & Curry Set (4 pax)',
     description: 'Family feast with rice, curries, and sambol.',
-    price: 4500,
+    price: 'LKR 4,500',
     category: "Chef's Specials",
     dietType: 'Non-Veg',
     spicyLevel: 'Mild',
-    tags: ['Best Seller'],
+    tags: ['Chef Special', 'Best Seller', 'Non-Veg'],
     image: 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=500'
   }
 ];

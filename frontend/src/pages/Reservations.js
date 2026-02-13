@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getReservations, cancelReservation } from '../services/reservationService';
+import { formatPriceLabel, getNumericPrice } from '../utils/price';
 
 const Reservations = () => {
   const [reservations, setReservations] = useState([]);
@@ -75,12 +76,12 @@ const Reservations = () => {
                   {reservation.orderItems.map((item, index) => (
                     <div key={index} style={{ display: 'flex', justifyContent: 'space-between', marginTop: '5px' }}>
                       <span>{item.menuItemId?.name || 'Item'} x {item.quantity}</span>
-                      <span>${(item.price * item.quantity).toFixed(2)}</span>
+                      <span>{formatPriceLabel(getNumericPrice(item.price) * item.quantity)}</span>
                     </div>
                   ))}
                   <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #eee', fontWeight: 'bold', display: 'flex', justifyContent: 'space-between' }}>
                     <span>Total:</span>
-                    <span>${reservation.totalPrice.toFixed(2)}</span>
+                    <span>{formatPriceLabel(reservation.totalPrice)}</span>
                   </div>
                 </div>
 

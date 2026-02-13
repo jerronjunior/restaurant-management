@@ -1,13 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { formatPriceLabel, getNumericPrice } from '../utils/price';
 
 const Cart = () => {
   const { cart, removeFromCart, updateQuantity, getTotalPrice, clearCart } = useCart();
   const navigate = useNavigate();
 
-  // Helper to handle currency display
-  const formatPrice = (amount) => `LKR ${amount.toLocaleString()}`;
+  const formatPrice = (amount) => formatPriceLabel(amount);
 
   const styles = `
     .cart-page { background: #080808; color: white; min-height: 100vh; padding: 60px 20px; }
@@ -76,7 +76,7 @@ const Cart = () => {
               </div>
 
               <div style={{ flex: 1, textAlign: 'right', fontWeight: 'bold', fontSize: '1.1rem' }}>
-                {formatPrice(item.price * item.quantity)}
+                {formatPrice(getNumericPrice(item.price) * item.quantity)}
               </div>
 
               <button 

@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { getMenuItems, getMenuCategories } from '../services/menuService';
 import { useCart } from '../context/CartContext';
+import { formatPriceLabel } from '../utils/price';
 
 const Menu = () => {
   const [menuItems, setMenuItems] = useState([]);
@@ -106,7 +107,7 @@ const Menu = () => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '30px' }}>
             {filteredMenuItems.map((item, index) => (
               <div key={index} className="food-card" style={{ position: 'relative' }}>
-                <div className="badge-price">LKR {item.price}</div>
+                <div className="badge-price">{formatPriceLabel(item.price)}</div>
                 <img src={item.image || item.img} alt={item.name} style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
                 
                 <div style={{ padding: '20px' }}>

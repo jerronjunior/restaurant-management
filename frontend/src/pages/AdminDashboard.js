@@ -22,6 +22,7 @@ import {
 } from '../services/adminService';
 import { getMenuItems, createMenuItem, updateMenuItem, deleteMenuItem } from '../services/menuService';
 import { updateOrderStatus } from '../services/orderService';
+import { formatPriceLabel, getNumericPrice } from '../utils/price';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -50,7 +51,7 @@ const tabs = [
 ];
 
 const formatCurrency = (value) => {
-  const safe = Number(value || 0);
+  const safe = getNumericPrice(value || 0);
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'LKR',
@@ -443,7 +444,7 @@ const AdminDashboard = () => {
     try {
       const payload = {
         ...menuForm,
-        price: Number(menuForm.price),
+        price: formatPriceLabel(menuForm.price),
         available: !!menuForm.available
       };
 
@@ -466,7 +467,7 @@ const AdminDashboard = () => {
     setMenuEditingId(item.id);
     setMenuForm({
       name: item.name || '',
-      price: item.price || '',
+      price: getNumericPrice(item.price) || '',
       category: item.category || '',
       dietType: item.dietType || 'Veg',
       spicyLevel: item.spicyLevel || 'Mild',
