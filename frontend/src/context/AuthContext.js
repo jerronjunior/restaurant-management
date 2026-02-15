@@ -16,6 +16,14 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('token'));
 
+  const getErrorMessage = (error, fallback) => {
+    const data = error?.response?.data;
+    if (Array.isArray(data?.errors) && data.errors.length > 0) {
+      return data.errors[0].msg || fallback;
+    }
+    return data?.message || data?.error || fallback;
+  };
+
   // Set token in axios headers and localStorage
   useEffect(() => {
     if (token) {
@@ -54,7 +62,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.message || 'Login failed'
+        message: getErrorMessage(error, 'Login failed')
       };
     }
   };
@@ -69,7 +77,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.message || 'Admin login failed'
+        message: getErrorMessage(error, 'Admin login failed')
       };
     }
   };
@@ -84,7 +92,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.message || 'Registration failed'
+        message: getErrorMessage(error, 'Registration failed')
       };
     }
   };

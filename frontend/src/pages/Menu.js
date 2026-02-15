@@ -121,15 +121,7 @@ const Menu = () => {
                   <h3 style={{ margin: '0 0 10px 0' }}>{item.name}</h3>
                   <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '20px', lineHeight: '1.4' }}>{item.description}</p>
                   
-                  <button 
-                    onClick={() => handleAddToCart(item)}
-                    style={{ 
-                      width: '100%', padding: '12px', background: '#ffc107', border: 'none', 
-                      borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer' 
-                    }}
-                  >
-                    Add to Cart
-                  </button>
+                  
                 </div>
               </div>
             ))}

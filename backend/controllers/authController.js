@@ -20,6 +20,31 @@ const getAuthErrorMessage = (error) => {
   return message.replace(/_/g, ' ').toLowerCase();
 };
 
+const buildAuthErrorResponse = (error) => {
+  const firebaseMessage = error?.response?.data?.error?.message;
+  const isFirebaseError = !!firebaseMessage;
+  const isConfigError = typeof error?.message === 'string' && error.message.includes('FIREBASE_');
+
+  if (isFirebaseError) {
+    return {
+      status: 400,
+      message: getAuthErrorMessage(error)
+    };
+  }
+
+  if (isConfigError) {
+    return {
+      status: 500,
+      message: error.message
+    };
+  }
+
+  return {
+    status: 500,
+    message: 'Server error'
+  };
+};
+
 // @route   POST /api/auth/register
 // @desc    Register a new user
 // @access  Public
@@ -66,9 +91,9 @@ exports.register = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({
-      message: 'Server error',
-      error: getAuthErrorMessage(error)
+    const authError = buildAuthErrorResponse(error);
+    res.status(authError.status).json({
+      message: authError.message
     });
   }
 };
@@ -123,9 +148,9 @@ exports.login = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({
-      message: 'Server error',
-      error: getAuthErrorMessage(error)
+    const authError = buildAuthErrorResponse(error);
+    res.status(authError.status).json({
+      message: authError.message
     });
   }
 };
@@ -176,9 +201,9 @@ exports.adminLogin = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({
-      message: 'Server error',
-      error: getAuthErrorMessage(error)
+    const authError = buildAuthErrorResponse(error);
+    res.status(authError.status).json({
+      message: authError.message
     });
   }
 };
