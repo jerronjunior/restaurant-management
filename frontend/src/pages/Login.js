@@ -216,7 +216,13 @@ const Login = () => {
             >
               User Login
             </button>
-           
+            <button
+              type="button"
+              className={`role-button ${formData.role === 'admin' ? 'active' : ''}`}
+              onClick={() => setFormData({ ...formData, role: 'admin' })}
+            >
+              Admin Login
+            </button>
           </div>
 
           <div className="custom-input-group">
