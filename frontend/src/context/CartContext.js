@@ -24,22 +24,35 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = (item, quantity = 1) => {
     setCart((prevCart) => {
-      const existingItem = prevCart.find((cartItem) => cartItem._id === item._id);
+      // Create a unique identifier for the item (use _id or name as fallback)
+      const itemUniqueId = item._id || item.name;
+      
+      // Find if the exact same item already exists in cart
+      const existingItem = prevCart.find((cartItem) => {
+        const cartItemUniqueId = cartItem.cartItemId || cartItem._id || cartItem.name;
+        return cartItemUniqueId === itemUniqueId;
+      });
       
       if (existingItem) {
-        return prevCart.map((cartItem) =>
-          cartItem._id === item._id
+        // If item exists, increase quantity
+        return prevCart.map((cartItem) => {
+          const cartItemUniqueId = cartItem.cartItemId || cartItem._id || cartItem.name;
+          return cartItemUniqueId === itemUniqueId
             ? { ...cartItem, quantity: cartItem.quantity + quantity }
-            : cartItem
-        );
+            : cartItem;
+        });
       }
       
-      return [...prevCart, { ...item, quantity }];
+      // If item doesn't exist, add it with a unique identifier
+      return [...prevCart, { ...item, quantity, cartItemId: itemUniqueId }];
     });
   };
 
   const removeFromCart = (itemId) => {
-    setCart((prevCart) => prevCart.filter((item) => item._id !== itemId && item.name !== itemId));
+    setCart((prevCart) => prevCart.filter((item) => {
+      const cartItemUniqueId = item.cartItemId || item._id || item.name;
+      return cartItemUniqueId !== itemId && item._id !== itemId && item.name !== itemId;
+    }));
   };
 
   const updateQuantity = (itemId, quantity) => {
@@ -49,9 +62,12 @@ export const CartProvider = ({ children }) => {
     }
     
     setCart((prevCart) =>
-      prevCart.map((item) =>
-        item._id === itemId || item.name === itemId ? { ...item, quantity } : item
-      )
+      prevCart.map((item) => {
+        const cartItemUniqueId = item.cartItemId || item._id || item.name;
+        return cartItemUniqueId === itemId || item._id === itemId || item.name === itemId
+          ? { ...item, quantity }
+          : item;
+      })
     );
   };
 

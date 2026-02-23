@@ -51,9 +51,10 @@ const Cart = () => {
         <h1 style={{ fontSize: '2.5rem', fontWeight: '900', marginBottom: '40px' }}>Your <span style={{ color: '#ffc107' }}>Orders</span></h1>
 
         <div className="cart-card">
-          {cart.map((item) => (
-            /* We use item._id OR item.name to ensure the key is unique */
-            <div key={item._id || item.name} className="cart-item">
+          {cart.map((item) => {
+            const itemUniqueId = item.cartItemId || item._id || item.name;
+            return (
+            <div key={itemUniqueId} className="cart-item">
               <div className="item-details" style={{ flex: 2 }}>
                 <h4>{item.name}</h4>
                 <p>{formatPrice(item.price)} each</p>
@@ -62,14 +63,14 @@ const Cart = () => {
               <div className="qty-controls">
                 <button 
                   className="qty-btn" 
-                  onClick={() => updateQuantity(item._id || item.name, item.quantity - 1)}
+                  onClick={() => updateQuantity(itemUniqueId, item.quantity - 1)}
                 >
                   −
                 </button>
                 <span style={{ fontWeight: 'bold', minWidth: '20px', textAlign: 'center' }}>{item.quantity}</span>
                 <button 
                   className="qty-btn" 
-                  onClick={() => updateQuantity(item._id || item.name, item.quantity + 1)}
+                  onClick={() => updateQuantity(itemUniqueId, item.quantity + 1)}
                 >
                   +
                 </button>
@@ -80,13 +81,14 @@ const Cart = () => {
               </div>
 
               <button 
-                onClick={() => removeFromCart(item._id || item.name)}
+                onClick={() => removeFromCart(itemUniqueId)}
                 style={{ background: 'transparent', border: 'none', color: '#ff4d4d', cursor: 'pointer', fontSize: '0.8rem', textDecoration: 'underline' }}
               >
                 Remove
               </button>
             </div>
-          ))}
+            );
+          })}
 
           <div className="total-section">
             <div>
