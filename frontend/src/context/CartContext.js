@@ -39,7 +39,7 @@ export const CartProvider = ({ children }) => {
   };
 
   const removeFromCart = (itemId) => {
-    setCart((prevCart) => prevCart.filter((item) => item._id !== itemId));
+    setCart((prevCart) => prevCart.filter((item) => item._id !== itemId && item.name !== itemId));
   };
 
   const updateQuantity = (itemId, quantity) => {
@@ -50,7 +50,7 @@ export const CartProvider = ({ children }) => {
     
     setCart((prevCart) =>
       prevCart.map((item) =>
-        item._id === itemId ? { ...item, quantity } : item
+        item._id === itemId || item.name === itemId ? { ...item, quantity } : item
       )
     );
   };

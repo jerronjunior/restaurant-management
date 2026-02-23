@@ -8,6 +8,7 @@ const Menu = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [category, setCategory] = useState('All');
+  const [addedItems, setAddedItems] = useState(new Set());
   const { addToCart } = useCart();
   const fetchMenuItems = async () => {
     try {
@@ -51,6 +52,19 @@ const Menu = () => {
   const handleAddToCart = (item) => {
     const imageUrl = item.image || item.img || '';
     addToCart({ ...item, img: imageUrl });
+    
+    // Add visual effect
+    const itemId = item._id || item.name;
+    setAddedItems(prev => new Set(prev).add(itemId));
+    
+    // Remove the effect after animation completes
+    setTimeout(() => {
+      setAddedItems(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(itemId);
+        return newSet;
+      });
+    }, 600);
   };
 
   const styles = `
@@ -69,7 +83,46 @@ const Menu = () => {
       position: absolute; top: 15px; right: 15px; background: #ffc107; color: #000;
       padding: 5px 12px; border-radius: 8px; font-weight: 800; z-index: 5;
     }
+    
+    @keyframes cartPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    @keyframes checkmark {
+      0% { transform: scale(0) rotate(0deg); opacity: 0; }
+      70% { transform: scale(1.2) rotate(0deg); }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    
+    .add-btn { 
+      width: 100%; 
+      padding: 12px; 
+      background: #ffc107; 
+      border: none; 
+      border-radius: 10px; 
+      font-weight: bold; 
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .add-btn:hover { 
+      background: #ffb300;
+      transform: scale(1.05);
+    }
+    
+    .add-btn.added {
+      animation: cartPulse 0.6s ease-out;
+      background: #4caf50;
+      color: white;
+    }
+    
+    .checkmark-icon {
+      animation: checkmark 0.6s ease-out;
+    }
   `;
+
 
   return (
     <div className="menu-page">
@@ -123,12 +176,13 @@ const Menu = () => {
                   
                   <button 
                     onClick={() => handleAddToCart(item)}
-                    style={{ 
-                      width: '100%', padding: '12px', background: '#ffc107', border: 'none', 
-                      borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer' 
-                    }}
+                    className={`add-btn ${addedItems.has(item._id || item.name) ? 'added' : ''}`}
                   >
-                    Add to Cart
+                    {addedItems.has(item._id || item.name) ? (
+                      <span className="checkmark-icon">✓ Added</span>
+                    ) : (
+                      '+ Add to Cart'
+                    )}
                   </button>
                 </div>
               </div>
