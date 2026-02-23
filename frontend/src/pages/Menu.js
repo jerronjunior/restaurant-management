@@ -127,8 +127,43 @@ const Menu = () => {
 
 
   return (
-    <div className="menu-page">
+    <div className="menu-page" style={{ position: 'relative' }}>
       <style>{styles}</style>
+      
+      {/* Cart Icon - Top Right */}
+      <button 
+        onClick={() => navigate('/cart')}
+        title="Go to Cart"
+        style={{
+          position: 'fixed',
+          top: '80px',
+          right: '30px',
+          background: '#ffc107',
+          border: 'none',
+          borderRadius: '50%',
+          width: '60px',
+          height: '60px',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '1.8rem',
+          zIndex: 1000,
+          boxShadow: '0 4px 15px rgba(255, 193, 7, 0.4)',
+          transition: 'all 0.3s ease',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'scale(1.15)';
+          e.currentTarget.style.boxShadow = '0 6px 25px rgba(255, 193, 7, 0.6)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'scale(1)';
+          e.currentTarget.style.boxShadow = '0 4px 15px rgba(255, 193, 7, 0.4)';
+        }}
+      >
+        🛒
+      </button>
+
       <div className="container" style={{ maxWidth: '1200px' }}>
         <h1 style={{ textAlign: 'center', fontSize: '3rem', marginBottom: '40px' }}>
           Explore <span style={{ color: '#ffc107' }}>{category}</span>
@@ -163,38 +198,6 @@ const Menu = () => {
             {filteredMenuItems.map((item, index) => (
               <div key={index} className="food-card" style={{ position: 'relative' }}>
                 <div className="badge-price">{formatPriceLabel(item.price)}</div>
-                <button 
-                  onClick={() => navigate('/cart')}
-                  className="cart-icon-btn"
-                  title="Go to Cart"
-                  style={{
-                    position: 'absolute',
-                    top: '15px',
-                    left: '15px',
-                    background: 'rgba(255, 193, 7, 0.9)',
-                    border: 'none',
-                    borderRadius: '50%',
-                    width: '40px',
-                    height: '40px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '1.3rem',
-                    zIndex: 6,
-                    transition: 'all 0.3s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.background = '#ffc107';
-                    e.target.style.transform = 'scale(1.1)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.background = 'rgba(255, 193, 7, 0.9)';
-                    e.target.style.transform = 'scale(1)';
-                  }}
-                >
-                  🛒
-                </button>
                 <img src={item.image || item.img} alt={item.name} style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
                 
                 <div style={{ padding: '20px' }}>
