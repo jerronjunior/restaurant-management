@@ -11,6 +11,7 @@ const Menu = () => {
   const [error, setError] = useState('');
   const [category, setCategory] = useState('All');
   const [addedItems, setAddedItems] = useState(new Set());
+  const [flyingItems, setFlyingItems] = useState([]);
   const { addToCart } = useCart();
   const fetchMenuItems = async () => {
     try {
@@ -51,7 +52,7 @@ const Menu = () => {
     return menuItems.filter((item) => item.category === category);
   }, [menuItems, category]);
 
-  const handleAddToCart = (item) => {
+  const handleAddToCart = (item, event) => {
     const imageUrl = item.image || item.img || '';
     addToCart({ ...item, img: imageUrl });
     
@@ -59,7 +60,23 @@ const Menu = () => {
     const itemId = item._id || item.name;
     setAddedItems(prev => new Set(prev).add(itemId));
     
-    // Remove the effect after animation completes
+    // Create flying animation
+    const buttonRect = event.target.getBoundingClientRect();
+    const flyingItem = {
+      id: Date.now(),
+      image: imageUrl,
+      startX: buttonRect.left + buttonRect.width / 2,
+      startY: buttonRect.top + buttonRect.height / 2,
+    };
+    
+    setFlyingItems(prev => [...prev, flyingItem]);
+    
+    // Remove flying item after animation
+    setTimeout(() => {
+      setFlyingItems(prev => prev.filter(i => i.id !== flyingItem.id));
+    }, 1000);
+    
+    // Remove the button effect after animation completes
     setTimeout(() => {
       setAddedItems(prev => {
         const newSet = new Set(prev);
@@ -122,6 +139,33 @@ const Menu = () => {
     
     .checkmark-icon {
       animation: checkmark 0.6s ease-out;
+    }
+    
+    .flying-item {
+      position: fixed;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      pointer-events: none;
+      z-index: 9999;
+      box-shadow: 0 4px 15px rgba(255, 193, 7, 0.6);
+      border: 2px solid #ffc107;
+    }
+    
+    @keyframes flyToCart {
+      0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: translate(var(--deltaX), var(--deltaY)) scale(0.8);
+        opacity: 0.8;
+      }
+      100% {
+        transform: translate(var(--deltaX), var(--deltaY)) scale(0.2);
+        opacity: 0;
+      }
     }
   `;
 
