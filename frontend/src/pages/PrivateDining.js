@@ -220,6 +220,12 @@ const PrivateDining = () => {
       cursor: pointer;
     }
 
+    .form-input option {
+      background: #1a1a1a;
+      color: white;
+      padding: 10px;
+    }
+
     .radio-group {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
