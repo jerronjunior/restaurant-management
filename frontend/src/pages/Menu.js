@@ -12,6 +12,7 @@ const Menu = () => {
   const [category, setCategory] = useState('All');
   const [addedItems, setAddedItems] = useState(new Set());
   const [flyingItems, setFlyingItems] = useState([]);
+  const [cartPulse, setCartPulse] = useState(false);
   const { addToCart } = useCart();
   const fetchMenuItems = async () => {
     try {
@@ -59,6 +60,10 @@ const Menu = () => {
     // Add visual effect
     const itemId = item._id || item.name;
     setAddedItems(prev => new Set(prev).add(itemId));
+    
+    // Trigger cart pulse
+    setCartPulse(true);
+    setTimeout(() => setCartPulse(false), 1000);
     
     // Create flying animation
     const buttonRect = event.target.getBoundingClientRect();
@@ -167,6 +172,13 @@ const Menu = () => {
         opacity: 0;
       }
     }
+    
+    @keyframes cartBounce {
+      0%, 100% { transform: scale(1); }
+      25% { transform: scale(1.2); }
+      50% { transform: scale(0.95); }
+      75% { transform: scale(1.15); }
+    }
   `;
 
 
@@ -178,6 +190,7 @@ const Menu = () => {
       <button 
         onClick={() => navigate('/cart')}
         title="Go to Cart"
+        className={cartPulse ? 'cart-pulse' : ''}
         style={{
           position: 'fixed',
           top: '80px',
@@ -195,6 +208,7 @@ const Menu = () => {
           zIndex: 1000,
           boxShadow: '0 4px 15px rgba(255, 193, 7, 0.4)',
           transition: 'all 0.3s ease',
+          animation: cartPulse ? 'cartBounce 0.6s ease-out' : 'none',
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.transform = 'scale(1.15)';
