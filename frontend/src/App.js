@@ -9,6 +9,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Cart from './pages/Cart';
 import Booking from './pages/Booking';
+import PrivateDining from './pages/PrivateDining';
 import Reservations from './pages/Reservations';
 import Orders from './pages/Orders';
 import AdminDashboard from './pages/AdminDashboard';
@@ -52,6 +53,7 @@ function App() {
             <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/menu" element={<Menu />} />
+            <Route path="/private-dining" element={<PrivateDining />} />
             <Route path="/login" element={<Login />} />
             <Route path="/admin/login" element={<Navigate to="/login" replace />} />
             <Route path="/register" element={<Register />} />
