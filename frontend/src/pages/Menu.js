@@ -1,9 +1,11 @@
 import React, { useMemo, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getMenuItems, getMenuCategories } from '../services/menuService';
 import { useCart } from '../context/CartContext';
 import { formatPriceLabel } from '../utils/price';
 
 const Menu = () => {
+  const navigate = useNavigate();
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -161,6 +163,38 @@ const Menu = () => {
             {filteredMenuItems.map((item, index) => (
               <div key={index} className="food-card" style={{ position: 'relative' }}>
                 <div className="badge-price">{formatPriceLabel(item.price)}</div>
+                <button 
+                  onClick={() => navigate('/cart')}
+                  className="cart-icon-btn"
+                  title="Go to Cart"
+                  style={{
+                    position: 'absolute',
+                    top: '15px',
+                    left: '15px',
+                    background: 'rgba(255, 193, 7, 0.9)',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: '40px',
+                    height: '40px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.3rem',
+                    zIndex: 6,
+                    transition: 'all 0.3s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.background = '#ffc107';
+                    e.target.style.transform = 'scale(1.1)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.background = 'rgba(255, 193, 7, 0.9)';
+                    e.target.style.transform = 'scale(1)';
+                  }}
+                >
+                  🛒
+                </button>
                 <img src={item.image || item.img} alt={item.name} style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
                 
                 <div style={{ padding: '20px' }}>
