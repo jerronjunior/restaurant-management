@@ -256,7 +256,7 @@ const Menu = () => {
                   <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '20px', lineHeight: '1.4' }}>{item.description}</p>
                   
                   <button 
-                    onClick={() => handleAddToCart(item)}
+                    onClick={(e) => handleAddToCart(item, e)}
                     className={`add-btn ${addedItems.has(item._id || item.name) ? 'added' : ''}`}
                   >
                     {addedItems.has(item._id || item.name) ? (
@@ -271,6 +271,33 @@ const Menu = () => {
           </div>
         )}
       </div>
+      
+      {/* Flying Items Animation */}
+      {flyingItems.map(flyingItem => {
+        // Calculate cart icon position (fixed at top right)
+        const cartX = window.innerWidth - 60;
+        const cartY = 110;
+        
+        // Calculate delta for animation
+        const deltaX = cartX - flyingItem.startX;
+        const deltaY = cartY - flyingItem.startY;
+        
+        return (
+          <img
+            key={flyingItem.id}
+            src={flyingItem.image}
+            alt="Flying item"
+            className="flying-item"
+            style={{
+              left: `${flyingItem.startX}px`,
+              top: `${flyingItem.startY}px`,
+              '--deltaX': `${deltaX}px`,
+              '--deltaY': `${deltaY}px`,
+              animation: 'flyToCart 1s ease-in-out forwards'
+            }}
+          />
+        );
+      })}
     </div>
   );
 };
