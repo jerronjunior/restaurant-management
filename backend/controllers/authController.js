@@ -57,6 +57,23 @@ exports.register = async (req, res) => {
 
     const { name, email, password, role } = req.body;
     const apiKey = getApiKey();
+    const db = getDb();
+
+    // Prevent admin registration through public endpoint
+    // Only allow 'user' role registration
+    const userRole = role === 'admin' ? 'user' : 'user';
+    
+    // Check if trying to register as admin (blocked)
+    if (role === 'admin') {
+      // Check if admin already exists
+      const adminSnapshot = await db.collection('users').where('role', '==', 'admin').limit(1).get();
+      
+      if (!adminSnapshot.empty) {
+        return res.status(403).json({
+          message: 'Admin account already exists. Only one admin is allowed.'
+        });
+      }
+    }
 
     const signupResponse = await axios.post(
       `${FIREBASE_AUTH_BASE_URL}/accounts:signUp?key=${apiKey}`,
@@ -68,12 +85,11 @@ exports.register = async (req, res) => {
     );
 
     const { localId, idToken } = signupResponse.data;
-    const db = getDb();
 
     const userPayload = {
       name,
       email,
-      role: role || 'user',
+      role: userRole,
       blocked: false,
       createdAt: admin.firestore.FieldValue.serverTimestamp()
     };
@@ -224,5 +240,74 @@ exports.getMe = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// @route   POST /api/auth/setup-admin
+// @desc    Create first admin account (one-time setup)
+// @access  Public (but checks if admin exists)
+exports.setupAdmin = async (req, res) => {
+  try {
+    const { name, email, password, setupKey } = req.body;
+    
+    // Require a setup key for security
+    const requiredSetupKey = process.env.ADMIN_SETUP_KEY || 'admin-setup-2024';
+    
+    if (setupKey !== requiredSetupKey) {
+      return res.status(403).json({ message: 'Invalid setup key' });
+    }
+
+    const db = getDb();
+    
+    // Check if admin already exists
+    const adminSnapshot = await db.collection('users').where('role', '==', 'admin').limit(1).get();
+    
+    if (!adminSnapshot.empty) {
+      return res.status(403).json({
+        message: 'Admin account already exists. Only one admin is allowed.'
+      });
+    }
+
+    const apiKey = getApiKey();
+    
+    // Create admin account in Firebase Auth
+    const signupResponse = await axios.post(
+      `${FIREBASE_AUTH_BASE_URL}/accounts:signUp?key=${apiKey}`,
+      {
+        email,
+        password,
+        returnSecureToken: true
+      }
+    );
+
+    const { localId, idToken } = signupResponse.data;
+
+    // Create admin user document
+    const adminPayload = {
+      name,
+      email,
+      role: 'admin',
+      blocked: false,
+      createdAt: admin.firestore.FieldValue.serverTimestamp()
+    };
+
+    await db.collection('users').doc(localId).set(adminPayload);
+
+    res.status(201).json({
+      success: true,
+      message: 'Admin account created successfully',
+      token: idToken,
+      user: {
+        id: localId,
+        name: adminPayload.name,
+        email: adminPayload.email,
+        role: adminPayload.role
+      }
+    });
+  } catch (error) {
+    const authError = buildAuthErrorResponse(error);
+    res.status(authError.status).json({
+      message: authError.message
+    });
   }
 };

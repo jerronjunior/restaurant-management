@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
   const [formData, setFormData] = useState({
-    role: 'user',
     name: '',
     email: '',
     password: '',
@@ -42,11 +41,11 @@ const Register = () => {
       formData.name,
       formData.email,
       formData.password,
-      formData.role
+      'user'
     );
     
     if (result.success) {
-      navigate(formData.role === 'admin' ? '/admin' : '/');
+      navigate('/');
     } else {
       setError(result.message);
     }
@@ -100,31 +99,6 @@ const Register = () => {
       margin-bottom: 35px;
       font-size: 0.9rem;
       letter-spacing: 1px;
-    }
-
-    .role-toggle {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .role-button {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      padding: 12px;
-      border-radius: 12px;
-      color: #bbb;
-      font-weight: 700;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .role-button.active {
-      background: #ffc107;
-      color: #000;
-      border-color: #ffc107;
-      box-shadow: 0 10px 20px rgba(255, 193, 7, 0.25);
     }
 
     .input-group {
@@ -227,30 +201,13 @@ const Register = () => {
         {error && <div className="error-box">⚠️ {error}</div>}
 
         <form onSubmit={handleSubmit}>
-          <div className="role-toggle">
-            <button
-              type="button"
-              className={`role-button ${formData.role === 'user' ? 'active' : ''}`}
-              onClick={() => setFormData({ ...formData, role: 'user' })}
-            >
-              User Register
-            </button>
-            <button
-              type="button"
-              className={`role-button ${formData.role === 'admin' ? 'active' : ''}`}
-              onClick={() => setFormData({ ...formData, role: 'admin' })}
-            >
-              Admin Register
-            </button>
-          </div>
-
           <div className="input-group">
-            <label>{formData.role === 'admin' ? 'Admin Name' : 'Full Name'}</label>
+            <label>Full Name</label>
             <input
               type="text"
               name="name"
               className="premium-input"
-              placeholder={formData.role === 'admin' ? 'Admin User' : 'John Doe'}
+              placeholder="John Doe"
               value={formData.name}
               onChange={handleChange}
               required
@@ -258,12 +215,12 @@ const Register = () => {
           </div>
 
           <div className="input-group">
-            <label>{formData.role === 'admin' ? 'Admin ID (Email)' : 'Email Address'}</label>
+            <label>Email Address</label>
             <input
               type="email"
               name="email"
               className="premium-input"
-              placeholder={formData.role === 'admin' ? 'admin@example.com' : 'john@example.com'}
+              placeholder="john@example.com"
               value={formData.email}
               onChange={handleChange}
               required
@@ -272,7 +229,7 @@ const Register = () => {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
             <div className="input-group">
-              <label>{formData.role === 'admin' ? 'Security Key' : 'Password'}</label>
+              <label>Password</label>
               <input
                 type="password"
                 name="password"
@@ -285,7 +242,7 @@ const Register = () => {
             </div>
 
             <div className="input-group">
-              <label>{formData.role === 'admin' ? 'Confirm Key' : 'Confirm'}</label>
+              <label>Confirm</label>
               <input
                 type="password"
                 name="confirmPassword"
@@ -303,7 +260,7 @@ const Register = () => {
             className="register-btn"
             disabled={loading}
           >
-            {loading ? 'Processing...' : formData.role === 'admin' ? 'Create Admin' : 'Create Account'}
+            {loading ? 'Processing...' : 'Create Account'}
           </button>
 
           <p className="footer-text">
