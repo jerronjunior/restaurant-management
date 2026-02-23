@@ -6,7 +6,6 @@ import { createReservation } from '../services/reservationService';
 const PrivateDining = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
-  const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     date: '',
     time: '',
@@ -21,6 +20,27 @@ const PrivateDining = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  // Calculate price based on guests and menu preference
+  const calculatePrice = () => {
+    const guests = parseInt(formData.guests) || 10;
+    let pricePerPerson = 15000; // Custom menu base price
+    
+    switch(formData.menuPreference) {
+      case 'traditional':
+        pricePerPerson = 12000;
+        break;
+      case 'fusion':
+        pricePerPerson = 13500;
+        break;
+      case 'custom':
+      default:
+        pricePerPerson = 15000;
+        break;
+    }
+    
+    return pricePerPerson * guests;
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -434,9 +454,14 @@ const PrivateDining = () => {
             </ul>
 
             <div style={{ marginTop: '30px', padding: '20px', background: 'rgba(255,193,7,0.05)', borderRadius: '12px', border: '1px solid rgba(255,193,7,0.2)' }}>
-              <div style={{ fontSize: '0.85rem', color: '#999', marginBottom: '8px' }}>Starting From</div>
-              <div style={{ fontSize: '2rem', fontWeight: '800', color: '#ffc107' }}>Rs. 15,000</div>
-              <div style={{ fontSize: '0.85rem', color: '#777' }}>per person (minimum 10 guests)</div>
+              <div style={{ fontSize: '0.85rem', color: '#999', marginBottom: '8px' }}>Estimated Total</div>
+              <div style={{ fontSize: '2rem', fontWeight: '800', color: '#ffc107' }}>Rs. {calculatePrice().toLocaleString()}</div>
+              <div style={{ fontSize: '0.85rem', color: '#777' }}>
+                {formData.guests} guests × Rs. {(calculatePrice() / (parseInt(formData.guests) || 10)).toLocaleString()} per person
+              </div>
+              <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '8px' }}>
+                Menu: {formData.menuPreference === 'custom' ? 'Custom' : formData.menuPreference === 'traditional' ? 'Traditional' : 'Fusion'}
+              </div>
             </div>
           </div>
 
@@ -525,7 +550,9 @@ const PrivateDining = () => {
                       checked={formData.menuPreference === 'custom'}
                       onChange={handleChange}
                     />
-                    <label htmlFor="custom" className="radio-label">Custom Menu</label>
+                    <label htmlFor="custom" className="radio-label">
+                      Custom Menu <span style={{ color: '#ffc107', fontSize: '0.85rem', marginLeft: '8px' }}>(Rs. 15,000/person)</span>
+                    </label>
                   </div>
                   <div className="radio-option">
                     <input
@@ -536,7 +563,9 @@ const PrivateDining = () => {
                       checked={formData.menuPreference === 'traditional'}
                       onChange={handleChange}
                     />
-                    <label htmlFor="traditional" className="radio-label">Traditional</label>
+                    <label htmlFor="traditional" className="radio-label">
+                      Traditional <span style={{ color: '#ffc107', fontSize: '0.85rem', marginLeft: '8px' }}>(Rs. 12,000/person)</span>
+                    </label>
                   </div>
                   <div className="radio-option">
                     <input
@@ -547,7 +576,9 @@ const PrivateDining = () => {
                       checked={formData.menuPreference === 'fusion'}
                       onChange={handleChange}
                     />
-                    <label htmlFor="fusion" className="radio-label">Fusion</label>
+                    <label htmlFor="fusion" className="radio-label">
+                      Fusion <span style={{ color: '#ffc107', fontSize: '0.85rem', marginLeft: '8px' }}>(Rs. 13,500/person)</span>
+                    </label>
                   </div>
                 </div>
               </div>
@@ -576,6 +607,26 @@ const PrivateDining = () => {
                   value={formData.specialRequests}
                   onChange={handleChange}
                 />
+              </div>
+
+              {/* Price Summary */}
+              <div style={{ 
+                marginTop: '20px', 
+                padding: '20px', 
+                background: 'linear-gradient(135deg, rgba(255,193,7,0.1) 0%, rgba(255,193,7,0.05) 100%)', 
+                borderRadius: '12px', 
+                border: '2px solid rgba(255,193,7,0.3)' 
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontSize: '0.9rem', color: '#999', marginBottom: '5px' }}>Total Amount</div>
+                    <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#ffc107' }}>Rs. {calculatePrice().toLocaleString()}</div>
+                  </div>
+                  <div style={{ textAlign: 'right', fontSize: '0.85rem', color: '#aaa' }}>
+                    <div>{formData.guests} guests</div>
+                    <div style={{ textTransform: 'capitalize' }}>{formData.menuPreference} menu</div>
+                  </div>
+                </div>
               </div>
 
               <button
