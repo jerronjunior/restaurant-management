@@ -13,6 +13,7 @@ const Menu = () => {
   const [addedItems, setAddedItems] = useState(new Set());
   const [flyingItems, setFlyingItems] = useState([]);
   const [cartPulse, setCartPulse] = useState(false);
+  const [quantities, setQuantities] = useState({});
   const { addToCart } = useCart();
   const fetchMenuItems = async () => {
     try {
@@ -53,12 +54,26 @@ const Menu = () => {
     return menuItems.filter((item) => item.category === category);
   }, [menuItems, category]);
 
+  const getItemId = (item) => item._id || item.name;
+
+  const getItemQuantity = (item) => quantities[getItemId(item)] || 1;
+
+  const updateItemQuantity = (item, delta) => {
+    const itemId = getItemId(item);
+    setQuantities((prev) => {
+      const current = prev[itemId] || 1;
+      const next = Math.max(1, current + delta);
+      return { ...prev, [itemId]: next };
+    });
+  };
+
   const handleAddToCart = (item, event) => {
     const imageUrl = item.image || item.img || '';
-    addToCart({ ...item, img: imageUrl });
+    const itemId = getItemId(item);
+    const quantity = getItemQuantity(item);
+    addToCart({ ...item, img: imageUrl }, quantity);
     
     // Add visual effect
-    const itemId = item._id || item.name;
     setAddedItems(prev => new Set(prev).add(itemId));
     
     // Trigger cart pulse
@@ -120,8 +135,49 @@ const Menu = () => {
       100% { transform: scale(1) rotate(0deg); opacity: 1; }
     }
     
+    .qty-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .qty-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #111;
+      border: 1px solid #222;
+    }
+
+    .qty-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: none;
+      background: #1a1a1a;
+      color: #ffc107;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .qty-btn:hover {
+      background: #ffc107;
+      color: #000;
+      transform: scale(1.05);
+    }
+
+    .qty-value {
+      min-width: 22px;
+      text-align: center;
+      font-weight: 800;
+      color: #fff;
+    }
+
     .add-btn { 
-      width: 100%; 
+      flex: 1;
       padding: 12px; 
       background: #ffc107; 
       border: none; 
@@ -269,16 +325,37 @@ const Menu = () => {
                   <h3 style={{ margin: '0 0 10px 0' }}>{item.name}</h3>
                   <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '20px', lineHeight: '1.4' }}>{item.description}</p>
                   
-                  <button 
-                    onClick={(e) => handleAddToCart(item, e)}
-                    className={`add-btn ${addedItems.has(item._id || item.name) ? 'added' : ''}`}
-                  >
-                    {addedItems.has(item._id || item.name) ? (
-                      <span className="checkmark-icon">✓ Added</span>
-                    ) : (
-                      '+ Add to Cart'
-                    )}
-                  </button>
+                  <div className="qty-row">
+                    <div className="qty-pill">
+                      <button
+                        type="button"
+                        className="qty-btn"
+                        onClick={() => updateItemQuantity(item, -1)}
+                        aria-label="Decrease quantity"
+                      >
+                        −
+                      </button>
+                      <span className="qty-value">{getItemQuantity(item)}</span>
+                      <button
+                        type="button"
+                        className="qty-btn"
+                        onClick={() => updateItemQuantity(item, 1)}
+                        aria-label="Increase quantity"
+                      >
+                        +
+                      </button>
+                    </div>
+                    <button 
+                      onClick={(e) => handleAddToCart(item, e)}
+                      className={`add-btn ${addedItems.has(getItemId(item)) ? 'added' : ''}`}
+                    >
+                      {addedItems.has(getItemId(item)) ? (
+                        <span className="checkmark-icon">✓ Added</span>
+                      ) : (
+                        `+ Add ${getItemQuantity(item)}`
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
