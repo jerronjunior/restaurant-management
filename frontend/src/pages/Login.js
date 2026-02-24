@@ -28,6 +28,11 @@ const Login = () => {
     
     if (result.success) {
       navigate('/');
+      // Clear the form after successful login
+      setFormData({
+        email: '',
+        password: ''
+      });
     } else {
       setError(result.message);
     }
