@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   getAdminStats,
+  getAllReservations,
   getAllOrders,
   getCategories,
   createCategory,
@@ -41,6 +42,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineEleme
 const tabs = [
   'Overview',
   'Orders',
+  'Reservations',
   'Menu',
   'Categories',
   'Customers',
@@ -77,6 +79,7 @@ const AdminDashboard = () => {
 
   const [stats, setStats] = useState(null);
   const [orders, setOrders] = useState([]);
+  const [reservations, setReservations] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
   const [categories, setCategories] = useState([]);
   const [customers, setCustomers] = useState([]);
@@ -122,6 +125,7 @@ const AdminDashboard = () => {
       const [
         statsRes,
         ordersRes,
+        reservationsRes,
         menuRes,
         categoriesRes,
         customersRes,
@@ -132,6 +136,7 @@ const AdminDashboard = () => {
       ] = await Promise.all([
         getAdminStats(),
         getAllOrders(),
+        getAllReservations(),
         getMenuItems(),
         getCategories(),
         getCustomers(),
@@ -143,6 +148,7 @@ const AdminDashboard = () => {
 
       setStats(statsRes.data);
       setOrders(ordersRes.data || []);
+      setReservations(reservationsRes.data || []);
       setMenuItems(menuRes.data || []);
       setCategories(categoriesRes.data || []);
       setCustomers(customersRes.data || []);
@@ -701,6 +707,47 @@ const AdminDashboard = () => {
                         </td>
                       </tr>
                     ))}
+                  </tbody>
+                </table>
+              </section>
+            )}
+
+            {activeTab === 'Reservations' && (
+              <section className="admin-panel">
+                <h2>Reservation Management</h2>
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Customer</th>
+                      <th>Date & Time</th>
+                      <th>Guests</th>
+                      <th>Items</th>
+                      <th>Total</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {reservations.map((reservation) => {
+                      const dateLabel = formatDate(reservation.date);
+                      return (
+                        <tr key={reservation.id}>
+                          <td>
+                            {reservation.userName}
+                            <div className="admin-muted">{reservation.userEmail}</div>
+                          </td>
+                          <td>
+                            {dateLabel}
+                            <div className="admin-muted">{reservation.time || 'N/A'}</div>
+                          </td>
+                          <td>{reservation.tableSize || 0}</td>
+                          <td>
+                            {(reservation.orderItems || []).map((item) => item.name).join(', ')}
+                          </td>
+                          <td>{formatCurrency(reservation.totalPrice)}</td>
+                          <td><span className="admin-tag">{reservation.status}</span></td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </section>
