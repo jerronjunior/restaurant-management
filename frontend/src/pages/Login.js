@@ -4,13 +4,12 @@ import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    role: 'user',
     email: '',
     password: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login, adminLogin } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -25,12 +24,10 @@ const Login = () => {
     setError('');
     setLoading(true);
 
-    const result = formData.role === 'admin'
-      ? await adminLogin(formData.email, formData.password)
-      : await login(formData.email, formData.password);
+    const result = await login(formData.email, formData.password);
     
     if (result.success) {
-      navigate(formData.role === 'admin' ? '/admin' : '/');
+      navigate('/');
     } else {
       setError(result.message);
     }
@@ -83,31 +80,6 @@ const Login = () => {
       text-align: center;
       margin-bottom: 40px;
       font-size: 0.95rem;
-    }
-
-    .role-toggle {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 25px;
-    }
-
-    .role-button {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 12px;
-      border-radius: 12px;
-      color: #bbb;
-      font-weight: 700;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .role-button.active {
-      background: #ffc107;
-      color: #000;
-      border-color: #ffc107;
-      box-shadow: 0 10px 20px rgba(255, 193, 7, 0.25);
     }
 
     .custom-input-group {
@@ -208,30 +180,13 @@ const Login = () => {
         {error && <div className="error-msg">{error}</div>}
 
         <form onSubmit={handleSubmit}>
-          <div className="role-toggle">
-            <button
-              type="button"
-              className={`role-button ${formData.role === 'user' ? 'active' : ''}`}
-              onClick={() => setFormData({ ...formData, role: 'user' })}
-            >
-              User Login
-            </button>
-            <button
-              type="button"
-              className={`role-button ${formData.role === 'admin' ? 'active' : ''}`}
-              onClick={() => setFormData({ ...formData, role: 'admin' })}
-            >
-              Admin Login
-            </button>
-          </div>
-
           <div className="custom-input-group">
-            <label>{formData.role === 'admin' ? 'Admin ID (Email)' : 'Email Address'}</label>
+            <label>Email Address</label>
             <input
               type="email"
               name="email"
               className="custom-input"
-              placeholder={formData.role === 'admin' ? 'admin@example.com' : 'name@example.com'}
+              placeholder="name@example.com"
               value={formData.email}
               onChange={handleChange}
               required
@@ -239,7 +194,7 @@ const Login = () => {
           </div>
 
           <div className="custom-input-group">
-            <label>{formData.role === 'admin' ? 'Security Key' : 'Password'}</label>
+            <label>Password</label>
             <input
               type="password"
               name="password"
@@ -256,14 +211,12 @@ const Login = () => {
             className="login-btn"
             disabled={loading}
           >
-            {loading ? 'AUTHENTICATING...' : formData.role === 'admin' ? 'ENTER DASHBOARD' : 'SIGN IN'}
+            {loading ? 'AUTHENTICATING...' : 'SIGN IN'}
           </button>
 
-          {formData.role === 'user' && (
-            <p className="register-link">
-              Don't have an account? <Link to="/register">Create an account</Link>
-            </p>
-          )}
+          <p className="register-link">
+            Don't have an account? <Link to="/register">Create an account</Link>
+          </p>
         </form>
       </div>
     </div>
