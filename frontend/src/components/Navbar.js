@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout, isAuthenticated, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -18,25 +18,39 @@ const Navbar = () => {
           🍽️ Restaurant Reservation
         </Link>
         <div className="navbar-links">
-          <Link to="/">Home</Link>
-          <Link to="/menu">Menu</Link>
+          {!isAdmin && (
+            <>
+              <Link to="/">Home</Link>
+              <Link to="/menu">Menu</Link>
+            </>
+          )}
           {isAuthenticated ? (
             <>
-              <Link to="/cart">Cart</Link>
-              <Link to="/booking">Book Table</Link>
-              <Link to="/reservations">My Reservations</Link>
-              <Link to="/orders">My Orders</Link>
-              {user?.role === 'admin' && (
-                <Link to="/admin">Admin Dashboard</Link>
+              {!isAdmin && (
+                <>
+                  <Link to="/cart">Cart</Link>
+                  <Link to="/booking">Book Table</Link>
+                  <Link to="/reservations">My Reservations</Link>
+                  <Link to="/orders">My Orders</Link>
+                  <span style={{ margin: '0 10px' }}>Hello, {user?.name}</span>
+                </>
               )}
-              <span style={{ margin: '0 10px' }}>Hello, {user?.name}</span>
+              {isAdmin && (
+                <>
+                  <Link to="/admin">Admin Dashboard</Link>
+                  <span style={{ margin: '0 10px', color: '#ffc107', fontWeight: 'bold' }}>
+                    👤 Admin: {user?.name}
+                  </span>
+                </>
+              )}
               <button onClick={handleLogout} className="btn btn-secondary" style={{ padding: '5px 15px' }}>
                 Logout
               </button>
             </>
           ) : (
             <>
-              <Link to="/login">Login</Link>
+              <Link to="/login">User Login</Link>
+              <Link to="/admin/login">Admin Login</Link>
               <Link to="/register">Register</Link>
             </>
           )}

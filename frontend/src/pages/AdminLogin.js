@@ -4,8 +4,8 @@ import { useAuth } from '../context/AuthContext';
 
 const AdminLogin = () => {
   const [formData, setFormData] = useState({
-    adminId: '',
-    securityKey: ''
+    email: '',
+    password: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -24,10 +24,15 @@ const AdminLogin = () => {
     setError('');
     setLoading(true);
 
-    const result = await adminLogin(formData.adminId, formData.securityKey);
+    const result = await adminLogin(formData.email, formData.password);
 
     if (result.success) {
       navigate('/admin');
+      // Clear the form after successful login
+      setFormData({
+        email: '',
+        password: ''
+      });
     } else {
       setError(result.message);
     }
@@ -175,34 +180,36 @@ const AdminLogin = () => {
       <style>{styles}</style>
 
       <div className="admin-card">
-        <h1 className="admin-title">Admin Access</h1>
+        <h1 className="admin-title">🔐 Admin Portal</h1>
         <p className="admin-subtitle">AUTHORIZED PERSONNEL ONLY</p>
 
         {error && <div className="admin-error">{error}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="admin-input-group">
-            <label>Admin ID (Email)</label>
+            <label>Admin Email</label>
             <input
               type="email"
-              name="adminId"
+              name="email"
               className="admin-input"
-              placeholder="admin@example.com"
-              value={formData.adminId}
+              placeholder="admin@restaurant.com"
+              value={formData.email}
               onChange={handleChange}
+              autoComplete="off"
               required
             />
           </div>
 
           <div className="admin-input-group">
-            <label>Security Key</label>
+            <label>Admin Password</label>
             <input
               type="password"
-              name="securityKey"
+              name="password"
               className="admin-input"
               placeholder="••••••••"
-              value={formData.securityKey}
+              value={formData.password}
               onChange={handleChange}
+              autoComplete="new-password"
               required
             />
           </div>
