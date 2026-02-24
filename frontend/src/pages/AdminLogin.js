@@ -182,6 +182,10 @@ const AdminLogin = () => {
       <div className="admin-card">
         <h1 className="admin-title">🔐 Admin Portal</h1>
         <p className="admin-subtitle">AUTHORIZED PERSONNEL ONLY</p>
+        
+        <div style={{ background: 'rgba(255, 193, 7, 0.1)', border: '1px solid rgba(255, 193, 7, 0.3)', padding: '12px', borderRadius: '8px', marginBottom: '20px', fontSize: '0.85rem', color: '#ffc107' }}>
+          ⚠️ Only admin credentials are valid here. Regular user accounts cannot access the admin dashboard.
+        </div>
 
         {error && <div className="admin-error">{error}</div>}
 

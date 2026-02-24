@@ -180,7 +180,7 @@ const Login = () => {
       
       <div className="glass-form-card">
         <h1 className="login-title">Welcome <span style={{ color: '#ffc107' }}>Back</span></h1>
-        <p className="login-subtitle">Please enter your details to continue</p>
+        <p className="login-subtitle">👤 USER LOGIN - Please enter your details to continue</p>
         
         {error && <div className="error-msg">{error}</div>}
 
@@ -224,6 +224,15 @@ const Login = () => {
           <p className="register-link">
             Don't have an account? <Link to="/register">Create an account</Link>
           </p>
+          
+          <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid rgba(255, 255, 255, 0.1)', textAlign: 'center' }}>
+            <p style={{ color: '#aaa', fontSize: '0.85rem', marginBottom: '10px' }}>
+              Are you an admin?
+            </p>
+            <Link to="/admin/login" style={{ color: '#ffc107', textDecoration: 'none', fontWeight: '700' }}>
+              → Access Admin Portal
+            </Link>
+          </div>
         </form>
       </div>
     </div>
