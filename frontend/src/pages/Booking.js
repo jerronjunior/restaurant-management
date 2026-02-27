@@ -116,16 +116,9 @@ const Booking = () => {
     }
 
     .booking-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 30px;
+      display: flex;
+      justify-content: center;
       margin-top: 30px;
-    }
-
-    @media (max-width: 968px) {
-      .booking-grid {
-        grid-template-columns: 1fr;
-      }
     }
 
     .glass-booking-card {
@@ -137,6 +130,8 @@ const Booking = () => {
       border-radius: 20px;
       box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
       animation: fadeIn 0.8s ease-out;
+      max-width: 600px;
+      width: 100%;
     }
 
     @keyframes fadeIn {
@@ -232,41 +227,6 @@ const Booking = () => {
       margin-bottom: 30px;
       font-size: 0.95rem;
     }
-
-    .order-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 12px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      color: #fff;
-    }
-
-    .order-total {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 25px;
-      padding-top: 25px;
-      border-top: 2px solid rgba(255, 193, 7, 0.3);
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: #ffc107;
-    }
-
-    .empty-cart {
-      color: #aaa;
-      text-align: center;
-      padding: 20px;
-    }
-
-    .empty-cart a {
-      color: #ffc107;
-      text-decoration: none;
-      font-weight: 700;
-    }
-
-    .empty-cart a:hover {
-      text-decoration: underline;
-    }
   `;
 
   return (
@@ -330,26 +290,6 @@ const Booking = () => {
                 {loading ? 'Processing...' : 'Confirm Reservation & Order'}
               </button>
             </form>
-          </div>
-
-          <div className="glass-booking-card">
-            <h2 className="card-heading">Order Summary</h2>
-            {cart.length === 0 ? (
-              <p className="empty-cart">Your cart is empty. <a href="/menu">Add items</a> to continue.</p>
-            ) : (
-              <>
-                {cart.map((item) => (
-                  <div key={item._id} className="order-item">
-                    <span>{item.name} x {item.quantity}</span>
-                    <span>{formatPriceLabel(getNumericPrice(item.price) * item.quantity)}</span>
-                  </div>
-                ))}
-                <div className="order-total">
-                  <span>Total:</span>
-                  <span>{formatPriceLabel(getTotalPrice())}</span>
-                </div>
-              </>
-            )}
           </div>
         </div>
       </div>
