@@ -1,22 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCart } from '../context/CartContext';
 import { createReservation } from '../services/reservationService';
 import { createOrder } from '../services/orderService';
 import { createPayment } from '../services/paymentService';
+import { getMenuItems } from '../services/menuService';
 import { formatPriceLabel, getNumericPrice } from '../utils/price';
 
 const Booking = () => {
-  const { cart, getTotalPrice, clearCart } = useCart();
   const [formData, setFormData] = useState({
     date: '',
     time: '',
     tableSize: 2
   });
+  const [menuItems, setMenuItems] = useState([]);
+  const [reservationOrders, setReservationOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchMenuItems();
+  }, []);
+
+  const fetchMenuItems = async () => {
+    try {
+      const response = await getMenuItems();
+      setMenuItems(response.data || []);
+    } catch (error) {
+      console.error('Failed to fetch menu items:', error);
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -25,13 +39,47 @@ const Booking = () => {
     });
   };
 
+  const addItemToReservation = (menuItem) => {
+    const existingItem = reservationOrders.find(item => item._id === menuItem._id);
+    
+    if (existingItem) {
+      setReservationOrders(reservationOrders.map(item =>
+        item._id === menuItem._id
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      ));
+    } else {
+      setReservationOrders([...reservationOrders, { ...menuItem, quantity: 1 }]);
+    }
+  };
+
+  const removeItemFromReservation = (itemId) => {
+    setReservationOrders(reservationOrders.filter(item => item._id !== itemId));
+  };
+
+  const updateItemQuantity = (itemId, newQuantity) => {
+    if (newQuantity <= 0) {
+      removeItemFromReservation(itemId);
+    } else {
+      setReservationOrders(reservationOrders.map(item =>
+        item._id === itemId ? { ...item, quantity: newQuantity } : item
+      ));
+    }
+  };
+
+  const getReservationTotal = () => {
+    return reservationOrders.reduce((total, item) => {
+      return total + (getNumericPrice(item.price) * item.quantity);
+    }, 0);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
 
-    if (cart.length === 0) {
-      setError('Please add items to your cart first');
+    if (reservationOrders.length === 0) {
+      setError('Please add at least one item to your reservation order');
       return;
     }
 
@@ -39,7 +87,7 @@ const Booking = () => {
 
     try {
       // Prepare order items for reservation
-      const orderItems = cart.map((item) => ({
+      const orderItems = reservationOrders.map((item) => ({
         menuItemId: item._id,
         quantity: item.quantity
       }));
@@ -65,7 +113,7 @@ const Booking = () => {
       });
 
       setSuccess('Reservation and order created successfully!');
-      clearCart();
+      setReservationOrders([]);
       
       setTimeout(() => {
         navigate('/reservations');
@@ -116,9 +164,16 @@ const Booking = () => {
     }
 
     .booking-grid {
-      display: flex;
-      justify-content: center;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
       margin-top: 30px;
+    }
+
+    @media (max-width: 968px) {
+      .booking-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     .glass-booking-card {
@@ -130,8 +185,6 @@ const Booking = () => {
       border-radius: 20px;
       box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
       animation: fadeIn 0.8s ease-out;
-      max-width: 600px;
-      width: 100%;
     }
 
     @keyframes fadeIn {
@@ -227,6 +280,170 @@ const Booking = () => {
       margin-bottom: 30px;
       font-size: 0.95rem;
     }
+
+    .menu-items-list {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+      padding-right: 10px;
+    }
+
+    .menu-items-list::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .menu-items-list::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+    }
+
+    .menu-items-list::-webkit-scrollbar-thumb {
+      background: rgba(255, 193, 7, 0.5);
+      border-radius: 10px;
+    }
+
+    .menu-item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      margin-bottom: 10px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: 0.3s;
+    }
+
+    .menu-item-row:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: #ffc107;
+    }
+
+    .menu-item-info {
+      flex: 1;
+    }
+
+    .menu-item-name {
+      color: #fff;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .menu-item-price {
+      color: #ffc107;
+      font-size: 0.9rem;
+    }
+
+    .add-item-btn {
+      padding: 8px 16px;
+      background: rgba(255, 193, 7, 0.2);
+      color: #ffc107;
+      border: 1px solid #ffc107;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .add-item-btn:hover {
+      background: #ffc107;
+      color: #000;
+    }
+
+    .order-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .order-item-details {
+      flex: 1;
+    }
+
+    .order-item-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .quantity-btn {
+      width: 30px;
+      height: 30px;
+      background: rgba(255, 193, 7, 0.2);
+      color: #ffc107;
+      border: 1px solid rgba(255, 193, 7, 0.5);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+      font-weight: bold;
+    }
+
+    .quantity-btn:hover {
+      background: #ffc107;
+      color: #000;
+    }
+
+    .quantity-display {
+      color: #fff;
+      font-weight: 600;
+      min-width: 30px;
+      text-align: center;
+    }
+
+    .remove-item-btn {
+      padding: 6px 12px;
+      background: rgba(244, 67, 54, 0.2);
+      color: #f44336;
+      border: 1px solid rgba(244, 67, 54, 0.5);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+      font-size: 0.8rem;
+    }
+
+    .remove-item-btn:hover {
+      background: #f44336;
+      color: #fff;
+    }
+
+    .order-total {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 25px;
+      padding-top: 25px;
+      border-top: 2px solid rgba(255, 193, 7, 0.3);
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #ffc107;
+    }
+
+    .empty-order {
+      color: #aaa;
+      text-align: center;
+      padding: 40px 20px;
+      font-size: 0.95rem;
+    }
+
+    .section-divider {
+      margin: 25px 0;
+      padding: 15px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .section-title {
+      color: #ffc107;
+      font-size: 1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 15px;
+    }
   `;
 
   return (
@@ -285,11 +502,90 @@ const Booking = () => {
               <button
                 type="submit"
                 className="booking-btn"
-                disabled={loading || cart.length === 0}
+                disabled={loading || reservationOrders.length === 0}
               >
                 {loading ? 'Processing...' : 'Confirm Reservation & Order'}
               </button>
             </form>
+          </div>
+
+          <div className="glass-booking-card">
+            <h2 className="card-heading">Order for Reservation</h2>
+            
+            <div className="section-divider">
+              <h3 className="section-title">Add Items</h3>
+              <div className="menu-items-list">
+                {menuItems.length === 0 ? (
+                  <p style={{ color: '#aaa', textAlign: 'center' }}>Loading menu items...</p>
+                ) : (
+                  menuItems.slice(0, 10).map((item) => (
+                    <div key={item._id} className="menu-item-row">
+                      <div className="menu-item-info">
+                        <div className="menu-item-name">{item.name}</div>
+                        <div className="menu-item-price">{formatPriceLabel(item.price)}</div>
+                      </div>
+                      <button
+                        type="button"
+                        className="add-item-btn"
+                        onClick={() => addItemToReservation(item)}
+                      >
+                        Add
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className="section-divider">
+              <h3 className="section-title">Your Order</h3>
+              {reservationOrders.length === 0 ? (
+                <div className="empty-order">
+                  No items added yet. Add items from above to create your reservation order.
+                </div>
+              ) : (
+                <>
+                  {reservationOrders.map((item) => (
+                    <div key={item._id} className="order-item">
+                      <div className="order-item-details">
+                        <div style={{ fontWeight: '600' }}>{item.name}</div>
+                        <div style={{ color: '#ffc107', fontSize: '0.9rem' }}>
+                          {formatPriceLabel(getNumericPrice(item.price))} each
+                        </div>
+                      </div>
+                      <div className="order-item-controls">
+                        <button
+                          type="button"
+                          className="quantity-btn"
+                          onClick={() => updateItemQuantity(item._id, item.quantity - 1)}
+                        >
+                          -
+                        </button>
+                        <span className="quantity-display">{item.quantity}</span>
+                        <button
+                          type="button"
+                          className="quantity-btn"
+                          onClick={() => updateItemQuantity(item._id, item.quantity + 1)}
+                        >
+                          +
+                        </button>
+                        <button
+                          type="button"
+                          className="remove-item-btn"
+                          onClick={() => removeItemFromReservation(item._id)}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="order-total">
+                    <span>Total:</span>
+                    <span>{formatPriceLabel(getReservationTotal())}</span>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
