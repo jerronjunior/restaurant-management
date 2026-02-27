@@ -82,12 +82,11 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Register function
+  // Register function (without auto-login)
   const register = async (name, email, password, role = 'user') => {
     try {
-      const response = await api.post('/auth/register', { name, email, password, role });
-      setToken(response.data.token);
-      setUser(response.data.user);
+      await api.post('/auth/register', { name, email, password, role });
+      // Don't set token or user - require manual login
       return { success: true };
     } catch (error) {
       return {

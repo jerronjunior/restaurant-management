@@ -10,6 +10,7 @@ const Register = () => {
     confirmPassword: ''
   });
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
@@ -45,7 +47,10 @@ const Register = () => {
     );
     
     if (result.success) {
-      navigate('/');
+      setSuccess('Account created successfully! Redirecting to login...');
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
     } else {
       setError(result.message);
     }
@@ -171,6 +176,16 @@ const Register = () => {
       font-size: 0.85rem;
     }
 
+    .success-box {
+      background: rgba(76, 175, 80, 0.15);
+      color: #a5d6a7;
+      padding: 12px;
+      border-radius: 10px;
+      border-left: 4px solid #4caf50;
+      margin-bottom: 25px;
+      font-size: 0.85rem;
+    }
+
     .footer-text {
       color: #aaa;
       text-align: center;
@@ -199,6 +214,7 @@ const Register = () => {
         <p className="auth-subtitle">JOIN OUR EXCLUSIVE DINING CIRCLE</p>
         
         {error && <div className="error-box">⚠️ {error}</div>}
+        {success && <div className="success-box">✓ {success}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="input-group">
