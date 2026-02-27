@@ -134,7 +134,7 @@ const Home = () => {
           />
 
           <ExperienceCard 
-            to={isAuthenticated ? "/booking" : "/register"}
+            to={isAuthenticated ? "/booking" : "/login"}
             img="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=800"
             tag="Convenience"
             title="Fast Reservation"
