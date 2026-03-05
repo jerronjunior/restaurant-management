@@ -79,7 +79,7 @@ const Booking = () => {
     setSuccess('');
 
     if (reservationOrders.length === 0) {
-      setError('bb');
+      setError('Please add at least one item to your reservation order');
       return;
     }
 
