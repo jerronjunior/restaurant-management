@@ -119,7 +119,7 @@ const Booking = () => {
         navigate('/reservations');
       }, 2000);
     } catch (error) {
-      setError(error.response?.data?.message || '');
+      setError(error.response?.data?.message || 'Failed to create reservation');
     } finally {
       setLoading(false);
     }
