@@ -112,7 +112,7 @@ const Booking = () => {
         method: 'Online Payment'
       });
 
-      setSuccess(' order created successfully!');
+      setSuccess('Reservation and order created successfully!');
       setReservationOrders([]);
       
       setTimeout(() => {
