@@ -27,7 +27,7 @@ const Menu = () => {
       setCategory((current) => (current === 'All' ? current : current));
       setCategoriesSource(categoriesResponse.data || []);
     } catch (err) {
-      setError(err.response?.data?.message || 'Unable to load menu items.');
+      setError(err.response?.data?.message || ' to load menu items.');
     } finally {
       setLoading(false);
     }
