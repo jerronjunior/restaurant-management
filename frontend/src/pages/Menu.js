@@ -245,7 +245,7 @@ const Menu = () => {
       {/* Cart Icon - Top Right */}
       <button 
         onClick={() => navigate('/cart')}
-        title="Go to Cart"
+        title=""
         className={cartPulse ? 'cart-pulse' : ''}
         style={{
           position: 'fixed',
