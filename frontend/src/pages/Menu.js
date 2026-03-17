@@ -295,6 +295,7 @@ const Menu = () => {
             </button>
           ))}
           <button
+            className="cat-pill"
             onClick={fetchMenuItems}
             disabled={loading}
           >
