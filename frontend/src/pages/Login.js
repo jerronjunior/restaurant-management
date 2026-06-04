@@ -222,7 +222,7 @@ const Login = () => {
           </button>
 
           <p className="register-link">
-            Don't have an account? <Link to="/register">Caccount</Link>
+            Don't have an account? <Link to="/register">Create an account</Link>
           </p>
         </form>
       </div>
