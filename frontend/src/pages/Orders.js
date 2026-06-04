@@ -37,7 +37,7 @@ const Orders = () => {
 
         {orders.length === 0 ? (
           <div className="empty-state">
-            <h3>No </h3>
+            <h3>No orders found</h3>
             <p>You haven't placed any orders yet.</p>
           </div>
         ) : (
