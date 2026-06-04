@@ -180,7 +180,7 @@ const Login = () => {
       
       <div className="glass-form-card">
         <h1 className="login-title">Welcome <span style={{ color: '#ffc107' }}>Back</span></h1>
-        <p className="login-subtitle">Please enter your details to continue</p>
+        <p className="login-subtitle">Pleaails to continue</p>
         
         {error && <div className="error-msg">{error}</div>}
 
